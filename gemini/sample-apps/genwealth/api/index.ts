@@ -69,6 +69,23 @@ app.get('/api/investments/semantic-search', async (req: express.Request, res: ex
     }    
 });
 
+/** Find investments with natural language prompts 
+ *  i.e. /investments/natural-search?prompt=hedge%20against%20%high%20inflation */
+app.get('/api/investments/natural-search', async (req: express.Request, res: express.Response) => {
+  try
+  {
+    const prompt: string = req.query.prompt as string;
+
+    const response = await investments.naturalSearch(prompt);
+    res.json(response);
+  }
+    catch (err)
+    {
+      console.error('error occurred:', err);
+      res.status(500).send(err);
+    }    
+});
+
 /** Find prospects with natural language prompt and optional filters
  *  i.e. /prospects/search?prompt=young%20aggressive%20investor&risk_profile=low&min_age=25&max_age=40 */ 
  app.get('/api/prospects/search', async (req: express.Request, res: express.Response) => {

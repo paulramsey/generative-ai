@@ -40,4 +40,22 @@ export class Investments {
             throw new Error(`semanticSearch errored with query: ${query}.\nError: ${(error as Error)?.message}`);
         }
     }
+
+    async naturalSearch(prompt: string) {
+        const query = `SELECT alloydb_ai_nl.get_sql(
+            nl_query => '${safeString(prompt)}'
+        )`
+
+        try
+        {
+            const generateSql = await this.db.query(query);
+            const generatedQuery = generateSql[0].get_sql;
+            const rows = await this.db.query(generatedQuery);
+            return { data: camelCaseRows(rows), query: query, generatedQuery: generatedQuery};
+        }
+        catch (error)
+        {
+            throw new Error(`naturalSearch errored with query: ${query}.\nError: ${(error as Error)?.message}`);
+        }
+    }
 }

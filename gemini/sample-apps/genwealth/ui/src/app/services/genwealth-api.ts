@@ -6,6 +6,7 @@ import { BASE_URL } from '../app.config';
 export interface QueryResponse<T> {
     query?: string;
     data?: T[];
+    generatedQuery?: string;
 }
 
 export interface Investment {
@@ -51,6 +52,7 @@ export class ChatRequest {
 export interface GenWealthService {
     searchInvestments(terms: string[]): Observable<QueryResponse<Investment>>;
     semanticSearchInvestments(prompt: string): Observable<QueryResponse<Investment>>;
+    naturalSearchInvestments(prompt: string): Observable<QueryResponse<Investment>>;
     semanticSearchProspects(
         prompt: string,
         riskProfile?: string,
@@ -80,6 +82,12 @@ export class GenWealthServiceClient implements GenWealthService {
 
     semanticSearchInvestments(prompt: string): Observable<QueryResponse<Investment>> {
         return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/semantic-search`, {
+            params: { prompt: prompt }
+        });
+    }
+
+    naturalSearchInvestments(prompt: string): Observable<QueryResponse<Investment>> {
+        return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/natural-search`, {
             params: { prompt: prompt }
         });
     }

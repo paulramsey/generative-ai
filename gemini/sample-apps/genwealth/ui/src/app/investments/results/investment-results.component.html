@@ -7,6 +7,13 @@
         }
     </app-sql-statement>
 
+    <div *ngIf="generatedQuery">
+        <app-sql-statement [query]="generatedQuery">
+            See Generated SQL (AlloyDB "Magic")
+        </app-sql-statement>
+    </div>
+
+    @if(data[0].hasOwnProperty('ticker')) {
     <div class="investment-container">
         <mat-card *ngFor="let investment of data" class="investment-card">
             <mat-card-title>{{investment.ticker}}</mat-card-title>
@@ -18,4 +25,13 @@
             <div innerHtml="{{investment.analysis | textToHtml}}"></div>
         </mat-card>
     </div>
+    } @else {
+        <mat-table #table [dataSource]="data">
+            <tr>
+                @for (col of getColumns(data); track col; let i = $index) {
+                        r   <th> {{ col }} </th>
+                }
+            </tr>
+        </mat-table>
+    }
 </div>
