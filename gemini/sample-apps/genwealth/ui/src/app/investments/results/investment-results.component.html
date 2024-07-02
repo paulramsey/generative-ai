@@ -26,12 +26,15 @@
         </mat-card>
     </div>
     } @else {
-        <mat-table #table [dataSource]="data">
-            <tr>
-                @for (col of getColumns(data); track col; let i = $index) {
-                        r   <th> {{ col }} </th>
-                }
-            </tr>
-        </mat-table>
+        <table mat-table [dataSource]="data">
+            @for (col of getColumns(data[0]); track col; let i = $index) {
+            <ng-container matColumnDef="{{ col }}">
+                <th mat-header-cell *matHeaderCellDef> {{ col }} </th>
+                <td mat-cell *matCellDef="let d"> {{ d[col] }} </td>
+              </ng-container>
+            }
+                <tr mat-header-row *matHeaderRowDef="getColumns(data[0])"></tr>
+                <tr mat-row *matRowDef="let myRowData; columns: getColumns(data[0])"></tr>
+        </table>
     }
 </div>
