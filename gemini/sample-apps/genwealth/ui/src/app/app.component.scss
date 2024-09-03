@@ -18,8 +18,27 @@
   margin-left: 47px;
 }
 
-mat-toolbar {
+.mat-toolbar {
   margin-bottom: 30px;
   height: 100px;
 }
 
+.mat-button-toggle {
+  font-size: small;
+  font-weight: bold;
+}
+
+.mat-divider {
+  height: 75%;
+  margin-right: 25px;
+  margin-left: 25px;
+}
+
+.roleSelector {
+  font-size: medium;
+  font-weight: 300;
+}
+
+.mat-icon-button {
+  flex: 2;
+}
