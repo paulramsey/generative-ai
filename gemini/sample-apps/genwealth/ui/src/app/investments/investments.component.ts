@@ -101,7 +101,7 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
         this.investments =
           this.genWealthClient.naturalSearchInvestments(this.investmentSearch).pipe(
             catchError((err: any) => {
-              this.error.showError('Unable to search investments', err);
+              this.error.showError('SQL generation failed.', err);
               return [];
             }),
             finalize(() => {
