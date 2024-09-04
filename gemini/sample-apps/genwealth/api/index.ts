@@ -3,7 +3,7 @@ import cors from 'cors';
 import multer from 'multer';
 import { join } from 'path';
 
-import { Database } from './database';
+import { Database, DatabasePsv } from './database';
 import { Investments } from './investments';
 import { Prospects } from './prospects';
 import { Chatbot, ChatRequest } from './chatbot';
@@ -16,7 +16,8 @@ import { ProspectusRag } from './prospectus-rag';
 const app: express.Application = express();
 const upload = multer();
 const db: Database = new Database();
-const investments = new Investments(db);
+const dbPsv: DatabasePsv = new DatabasePsv();
+const investments = new Investments(db, dbPsv);
 const prospects = new Prospects(db);
 const prospectus = new Prospectus(db);
 const prospectusRag = new ProspectusRag(db);
@@ -41,8 +42,10 @@ app.get('/api/investments/search', async (req: express.Request, res: express.Res
   try 
   {
     const terms: string[] = req.query.terms as string[];
+    const currentRole: string = req.query.currentRole as string;
+    const currentRoleId: number = req.query.currentRoleId as unknown as number;
 
-    const response = await investments.search(terms);
+    const response = await investments.search(terms, currentRole, currentRoleId);
     res.json(response);
   }
   catch (err)
@@ -58,8 +61,10 @@ app.get('/api/investments/semantic-search', async (req: express.Request, res: ex
   try
   {
     const prompt: string = req.query.prompt as string;
+    const currentRole: string = req.query.currentRole as string;
+    const currentRoleId: number = req.query.currentRoleId as unknown as number;
 
-    const response = await investments.semanticSearch(prompt);
+    const response = await investments.semanticSearch(prompt, currentRole, currentRoleId);
     res.json(response);
   }
     catch (err)
@@ -75,8 +80,10 @@ app.get('/api/investments/natural-search', async (req: express.Request, res: exp
   try
   {
     const prompt: string = req.query.prompt as string;
+    const currentRole: string = req.query.currentRole as string;
+    const currentRoleId: number = req.query.currentRoleId as unknown as number;
 
-    const response = await investments.naturalSearch(prompt);
+    const response = await investments.naturalSearch(prompt, currentRole, currentRoleId);
     res.json(response);
   }
     catch (err)
@@ -95,8 +102,10 @@ app.get('/api/investments/natural-search', async (req: express.Request, res: exp
     const riskProfile: string | undefined = req.query.risk_profile as string;
     const minAge: number | undefined = req.query.min_age ? Number(req.query.min_age) : undefined;
     const maxAge: number | undefined = req.query.max_age ? Number(req.query.max_age) : undefined;
+    const currentRole: string = req.query.currentRole as string;
+    const currentRoleId: number = req.query.currentRoleId as unknown as number;
 
-    const response = await prospects.semanticSearch(prompt, riskProfile, minAge, maxAge);
+    const response = await prospects.semanticSearch(prompt, currentRole, currentRoleId, riskProfile, minAge, maxAge);
     res.json(response);
   }
   catch (err)

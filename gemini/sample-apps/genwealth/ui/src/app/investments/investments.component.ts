@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GenWealthServiceClient, Investment, QueryResponse } from '../services/genwealth-api';
 import { Observable, Subscription, catchError, finalize } from 'rxjs';
@@ -15,6 +15,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { InvestmentResultsComponent } from './results/investment-results.component';
 import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 import { ActivatedRoute } from '@angular/router';
+
+import { RoleService } from '../services/genwealth-api';
 
 export enum SearchType {
   KEYWORD = 'keyword',
@@ -40,19 +42,38 @@ export enum SearchType {
   templateUrl: './investments.component.html',
   styleUrl: './investments.component.scss'
 })
-export class InvestmentsComponent implements OnInit, OnDestroy {
+export class InvestmentsComponent implements OnInit {
   constructor(
     private cdRef: ChangeDetectorRef,
     private genWealthClient: GenWealthServiceClient,
     private route: ActivatedRoute,
-    private error: SnackBarErrorComponent) {}
+    private error: SnackBarErrorComponent,
+    private RoleService: RoleService) {}
 
+  currentRole: string | undefined;
+  currentRoleId: number | undefined;
+  currentRoleMap: Map<string, number> | undefined;
+  validRole: boolean | undefined;
+  
   ngOnInit(): void {
-    console.log("Loading investment component.");
-  }
+    console.log("Loading investment component.")
+    
+    this.RoleService.role$.subscribe(roleMap => {
+      if (roleMap) {
+        const [role] = roleMap.keys(); // Get the role name from the Map
+        this.currentRole = role;
+        this.currentRoleId = roleMap.get(role)
+      } else {
+        this.currentRole = undefined;
+      }
 
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+      if (this.currentRole == 'Admin' || this.currentRole?.includes("Subscriber")) {
+        this.validRole = true;
+      } else {
+        this.validRole = false;
+      }
+    });
+    
   }
 
   searchTypes = SearchType;
@@ -60,7 +81,6 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
   searchType: string = SearchType.KEYWORD;
   loading: boolean = false;
   investments?: Observable<QueryResponse<Investment>> = undefined;
-  subscription?: Subscription = undefined;
 
   KEYWORD_PLACEHOLDER = "Enter comma delimited key terms to search";
   SEMANTIC_PLACEHOLDER = "Describe the type of investment you are looking for";
@@ -75,7 +95,7 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
     switch (this.searchType) {
       case SearchType.KEYWORD:
         this.investments =
-         this.genWealthClient.searchInvestments(this.investmentSearch.split(',')).pipe(
+         this.genWealthClient.searchInvestments(this.investmentSearch.split(','), this.currentRole!, this.currentRoleId!).pipe(
             catchError((err: any) => {
               this.error.showError('Unable to search investments', err);
               return [];
@@ -87,7 +107,7 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
         break;
       case SearchType.SEMANTIC:
         this.investments =
-          this.genWealthClient.semanticSearchInvestments(this.investmentSearch).pipe(
+          this.genWealthClient.semanticSearchInvestments(this.investmentSearch, this.currentRole!, this.currentRoleId!).pipe(
             catchError((err: any) => {
               this.error.showError('Unable to search investments', err);
               return [];
@@ -99,7 +119,7 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
         break;
       case SearchType.NATURAL:
         this.investments =
-          this.genWealthClient.naturalSearchInvestments(this.investmentSearch).pipe(
+          this.genWealthClient.naturalSearchInvestments(this.investmentSearch, this.currentRole!, this.currentRoleId!).pipe(
             catchError((err: any) => {
               this.error.showError('SQL generation failed.', err);
               return [];
@@ -126,4 +146,5 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
         return '';
     }
   }
+
 }

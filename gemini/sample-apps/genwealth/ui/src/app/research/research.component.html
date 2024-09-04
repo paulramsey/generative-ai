@@ -1,4 +1,5 @@
 <mat-card>
+    @if (validRole) {
     <mat-card-title>Prospectus</mat-card-title>
     <mat-tab-group>        
         <mat-tab label="Search">
@@ -84,5 +85,8 @@
                 }
             </div>
         </mat-tab>        
-    </mat-tab-group>        
+    </mat-tab-group>
+} @else {
+    <mat-card-title>Must be logged in as Admin to use this module.</mat-card-title>
+}        
 </mat-card>

@@ -19,6 +19,8 @@ import { SqlStatementComponent } from '../common/sql-statement/sql-statement.com
 import { ActivatedRoute } from '@angular/router';
 import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 
+import { RoleService } from '../services/genwealth-api';
+
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -45,17 +47,39 @@ export class ChatComponent implements OnInit {
   loading: boolean = false;
   chatRequest: ChatRequest = new ChatRequest("");
   chatResponse?: ChatResponse = undefined;
+
+  currentRole: string | undefined;
+  currentRoleId: number | undefined;
+  currentRoleMap: Map<string, number> | undefined;
+  validRole: boolean | undefined;
   
   constructor(
     private cdRef: ChangeDetectorRef,
     private route: ActivatedRoute,
     private error: SnackBarErrorComponent,
-    private genWealthClient: GenWealthServiceClient) {}  
+    private genWealthClient: GenWealthServiceClient,
+    private RoleService: RoleService) {}  
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const userId = params.get('userId') ?? undefined;
       this.chatRequest.userId = userId ? Number(userId) : undefined;
+    });
+
+    this.RoleService.role$.subscribe(roleMap => {
+      if (roleMap) {
+        const [role] = roleMap.keys(); // Get the role name from the Map
+        this.currentRole = role;
+        this.currentRoleId = roleMap.get(role)
+      } else {
+        this.currentRole = undefined;
+      }
+
+      if (this.currentRole == 'Admin') {
+        this.validRole = true;
+      } else {
+        this.validRole = false;
+      }
     });
   }
 

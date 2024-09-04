@@ -1,5 +1,6 @@
 <mat-card>
-    <mat-card-title>Prospects</mat-card-title>
+    @if (validRole) {
+    <mat-card-title>Prospects for {{ currentRole }}</mat-card-title>
     <mat-form-field>
         <input [(ngModel)]="prospectSearch" (keydown.enter)="findProspects()" matInput 
             placeholder="Describe your ideal prospect">
@@ -34,4 +35,7 @@
             (click)="findProspects()">Find</button>
     </mat-card-actions>    
     <app-prospect-results *ngIf="prospects" [prospects]="prospects"></app-prospect-results>
+    } @else {
+        <mat-card-title>Must be logged in as Admin or Advisor to use this module.</mat-card-title>
+    }
 </mat-card>

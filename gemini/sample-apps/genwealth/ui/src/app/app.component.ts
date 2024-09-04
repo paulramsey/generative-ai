@@ -19,7 +19,7 @@ import {MatDividerModule} from '@angular/material/divider';
 
 import {MatMenuModule} from '@angular/material/menu';
 
-
+import { RoleService } from './services/genwealth-api';
 
 @Component({
   selector: 'app-root',
@@ -44,37 +44,42 @@ import {MatMenuModule} from '@angular/material/menu';
   providers: [SnackBarErrorComponent]
 })
 export class AppComponent implements OnInit {
-  constructor(private breakpointObserver: BreakpointObserver) {}
+  constructor(
+    private breakpointObserver: BreakpointObserver, 
+    private RoleService: RoleService) {}
 
   isSmallScreen: boolean = false;
+
+  currentRole: string | undefined;
+  currentRoleId: number | undefined;
+  currentRoleMap :Map<string, number> | undefined;
 
   ngOnInit() { 
     this.breakpointObserver
       .observe([Breakpoints.Handset])
       .subscribe( _ => this.isSmallScreen = this.breakpointObserver.isMatched(Breakpoints.Handset) )
-    this.selected = 'Admin';
+    
+    this.RoleService.role$.subscribe(roleMap => {
+      if (roleMap) {
+        const [role] = roleMap.keys(); // Get the role name from the Map
+        this.currentRole = role;
+        this.currentRoleId = roleMap.get(role)
+      } else {
+        this.currentRole = undefined;
+      }
+    });
+
+    this.currentRoleMap = this.RoleService.lookupRoleDetails('Admin')
+    this.RoleService.updateRole(this.currentRoleMap);
   }
 
-  selected :string | undefined;
+  
 
   select(pText :string)
   {
-    this.selected = pText
-  }
-
-  lookupIdByRole(role: string): number | undefined {
-    const roleMap: Map<string, number> = new Map([
-      ["Advisor (Paul Ramsey)", 1],
-      ["Advisor (Evelyn Sterling)", 2],
-      ["Advisor (Arthur Kensington)", 3],
-      ["Advisor (Penelope Wainwright)", 4],
-      ["Advisor (Sebastian Thorne)", 5],
-      ["Subscriber (Basic)", 0],
-      ["Subscriber (Intermediate)", 1],
-      ["Subscriber (Premium)", 2],
-    ]);
-  
-    return roleMap.get(role); 
+    this.currentRole = pText
+    this.currentRoleMap = this.RoleService.lookupRoleDetails(this.currentRole)
+    this.RoleService.updateRole(this.currentRoleMap);
   }
 
 }

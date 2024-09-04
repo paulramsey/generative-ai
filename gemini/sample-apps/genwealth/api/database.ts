@@ -36,7 +36,7 @@ export class Database {
     if (!process.env['PGHOST']) {
       throw new Error(`Missing required environment variable: 'PGHOST'`);
     }
-    this.pool = new Pool()
+    this.pool = new Pool({user: 'postgres'})
 
     // the pool will emit an error on behalf of any idle clients
     // it contains if a backend error or network partition happens
@@ -47,6 +47,37 @@ export class Database {
   }
 
   async query(query: string) {
+    console.log("Running query in non-PSV pool.")
+    const client = await this.pool.connect()
+    const res = await client.query(query)
+    client.release()
+    return res.rows;
+  }
+
+  async end() {
+    await this.pool.end()
+  }
+}
+
+export class DatabasePsv {
+  private pool: Pool;
+
+  constructor() {
+    if (!process.env['PGHOST']) {
+      throw new Error(`Missing required environment variable: 'PGHOST'`);
+    }
+    this.pool = new Pool({user: 'psv_user'})
+
+    // the pool will emit an error on behalf of any idle clients
+    // it contains if a backend error or network partition happens
+    this.pool.on('error', (err, client) => {
+      console.error('Unexpected error on idle client', err);
+      throw err;
+    })
+  }
+
+  async query(query: string) {
+    console.log("Running query in PSV pool.")
     const client = await this.pool.connect()
     const res = await client.query(query)
     client.release()

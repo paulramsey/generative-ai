@@ -16,6 +16,8 @@ import { SqlStatementComponent } from '../common/sql-statement/sql-statement.com
 import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 import { ActivatedRoute } from '@angular/router';
 
+import { RoleService } from '../services/genwealth-api';
+
 @Component({
   selector: 'app-research',
   standalone: true,
@@ -52,14 +54,36 @@ export class ResearchComponent implements OnInit {
   ragSummary? : string = undefined;
   ragPrompt?: string = undefined;
 
+  currentRole: string | undefined;
+  currentRoleId: number | undefined;
+  currentRoleMap: Map<string, number> | undefined;
+  validRole: boolean | undefined;
+
   constructor(
     private route: ActivatedRoute,
     private genWealthClient: GenWealthServiceClient,
-    private error: SnackBarErrorComponent) {}
+    private error: SnackBarErrorComponent,
+    private RoleService: RoleService) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.showUpload = Boolean(params['show-upload']);
+    });
+
+    this.RoleService.role$.subscribe(roleMap => {
+      if (roleMap) {
+        const [role] = roleMap.keys(); // Get the role name from the Map
+        this.currentRole = role;
+        this.currentRoleId = roleMap.get(role)
+      } else {
+        this.currentRole = undefined;
+      }
+
+      if (this.currentRole == 'Admin') {
+        this.validRole = true;
+      } else {
+        this.validRole = false;
+      }
     });
   }
 

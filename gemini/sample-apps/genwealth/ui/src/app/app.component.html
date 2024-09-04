@@ -18,25 +18,9 @@
         <button mat-button routerLink="/research">Research</button>
         <span class="toolbar-spacer"></span>
 
-        
-
-        <!--
-        <mat-divider [vertical]="true"></mat-divider>
-        <mat-button-toggle-group
-            name="userRole"
-            aria-label="User Role"
-        >
-            <mat-button-toggle value="admin">Admin</mat-button-toggle>
-            <mat-button-toggle value="advisor">Advisor</mat-button-toggle>
-            <mat-button-toggle value="subscriber">Subscriber</mat-button-toggle>
-        </mat-button-toggle-group>
-
-        <div class="roleSelector">{{ selected }}</div>
-        -->    
-
         <div class="roleDiv">
             <button mat-button [matMenuTriggerFor]="roleMenu" aria-label="User role menu">
-                Role: {{ selected }}
+                Role: {{ currentRole }}
             </button>
         </div>
         

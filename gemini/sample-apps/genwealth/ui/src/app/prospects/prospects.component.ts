@@ -15,6 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 
+import { RoleService } from '../services/genwealth-api';
+
 @Component({
   selector: 'app-prospects',
   standalone: true,
@@ -36,7 +38,8 @@ import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 export class ProspectsComponent {
   constructor(
     private genWealthClient: GenWealthServiceClient,
-    private error: SnackBarErrorComponent) {}
+    private error: SnackBarErrorComponent,
+    private RoleService: RoleService) {}
 
   prospectSearch: string = '';
   useFilters: boolean = false;
@@ -44,7 +47,33 @@ export class ProspectsComponent {
   maxAge: number = 65;
   riskProfile: number = 1;
 
+  currentRole: string | undefined;
+  currentRoleId: number | undefined;
+  currentRoleMap: Map<string, number> | undefined;
+  validRole: boolean | undefined;
+
   prospects?: Observable<QueryResponse<Prospect>> = undefined;
+
+  ngOnInit(): void {
+    console.log("Loading prospects component.")
+    
+    this.RoleService.role$.subscribe(roleMap => {
+      if (roleMap) {
+        const [role] = roleMap.keys(); // Get the role name from the Map
+        this.currentRole = role;
+        this.currentRoleId = roleMap.get(role)
+      } else {
+        this.currentRole = undefined;
+      }
+
+      if (this.currentRole == 'Admin' || this.currentRole?.includes("Advisor")) {
+        this.validRole = true;
+      } else {
+        this.validRole = false;
+      }
+    });
+    
+  }
 
   useFiltersChange(change: MatSlideToggleChange) {
     this.useFilters = change.checked;
@@ -76,7 +105,7 @@ export class ProspectsComponent {
     console.log('finding...', this.prospectSearch, riskFilter, minAgeFilter, maxAgeFilter);
 
     this.prospects = 
-      this.genWealthClient.semanticSearchProspects(this.prospectSearch,
+      this.genWealthClient.semanticSearchProspects(this.prospectSearch, this.currentRole!, this.currentRoleId!,
         riskFilter, minAgeFilter, maxAgeFilter).pipe(
           catchError((err) => {
             this.error.showError('Unable to search investments', err);

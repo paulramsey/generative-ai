@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { BASE_URL } from '../app.config';
 
 export interface QueryResponse<T> {
@@ -50,11 +50,13 @@ export class ChatRequest {
 
 
 export interface GenWealthService {
-    searchInvestments(terms: string[]): Observable<QueryResponse<Investment>>;
-    semanticSearchInvestments(prompt: string): Observable<QueryResponse<Investment>>;
-    naturalSearchInvestments(prompt: string): Observable<QueryResponse<Investment>>;
+    searchInvestments(terms: string[], currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>>;
+    semanticSearchInvestments(prompt: string, currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>>;
+    naturalSearchInvestments(prompt: string, currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>>;
     semanticSearchProspects(
         prompt: string,
+        currentRole: string, 
+        currentRoleId: number,
         riskProfile?: string,
         minAge?: number,
         maxAge?: number): Observable<QueryResponse<Prospect>>;
@@ -69,32 +71,35 @@ export interface GenWealthService {
 export class GenWealthServiceClient implements GenWealthService {
     constructor(private http: HttpClient, @Inject(BASE_URL) private baseUrl: string) {}
     
-    searchInvestments(terms: string[]): Observable<QueryResponse<Investment>> {
+    searchInvestments(terms: string[], currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>> {
         if (terms.length === 1) {
             // Caveat - if only a single term is passed, the single term will be split into each char
             // prevent this by adding empty.
             terms = [terms[0], ''];
         }
         return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/search`, {
-            params: { terms: terms }
+            params: { terms: terms, currentRole: currentRole, currentRoleId: currentRoleId }
         });
     }
 
-    semanticSearchInvestments(prompt: string): Observable<QueryResponse<Investment>> {
+    semanticSearchInvestments(prompt: string, currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>> {
         return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/semantic-search`, {
-            params: { prompt: prompt }
+            params: { prompt: prompt, currentRole: currentRole, currentRoleId: currentRoleId}
         });
     }
 
-    naturalSearchInvestments(prompt: string): Observable<QueryResponse<Investment>> {
+    naturalSearchInvestments(prompt: string, currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>> {
         return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/natural-search`, {
-            params: { prompt: prompt }
+            params: { prompt: prompt, currentRole: currentRole, currentRoleId: currentRoleId }
         });
     }
 
-    semanticSearchProspects(prompt: string, riskProfile?: string | undefined, minAge?: number | undefined, maxAge?: number | undefined): 
+    semanticSearchProspects(prompt: string, currentRole: string, currentRoleId: number, riskProfile?: string | undefined, minAge?: number | undefined, maxAge?: number | undefined): 
             Observable<QueryResponse<Prospect>> {
         let params: HttpParams = new HttpParams().set('prompt', prompt);
+
+        params = params.set('currentRole', currentRole);
+        params = params.set('currentRoleId', currentRoleId)
         
         if (riskProfile) {
             params = params.set('risk_profile', riskProfile);
@@ -136,4 +141,39 @@ export class GenWealthServiceClient implements GenWealthService {
     getTickers(): Observable<string[]> {
         return this.http.get<string[]>(`${this.baseUrl}/prospectus/tickers`);
     }    
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RoleService {
+  private roleChangeSource = new BehaviorSubject<Map<string, number> 
+ | undefined>(undefined);
+  role$ = this.roleChangeSource.asObservable(); 
+
+  updateRole(newRole: Map<string, number> | undefined) {
+    this.roleChangeSource.next(newRole);
+  }
+
+  lookupRoleDetails(role: string): Map<string, number> | undefined {
+    const roleMap: Map<string, number> = new Map([
+      ["Advisor (Paul Ramsey)", 1],
+      ["Advisor (Evelyn Sterling)", 2],
+      ["Advisor (Arthur Kensington)", 3],
+      ["Advisor (Penelope Wainwright)", 4],
+      ["Advisor (Sebastian Thorne)", 5],
+      ["Subscriber (Basic)", 0],
+      ["Subscriber (Intermediate)", 1],
+      ["Subscriber (Premium)", 2],
+      ["Admin", 0]
+    ]);
+  
+    const id = roleMap.get(role);
+  
+    if (id !== undefined) {
+      return new Map([[role, id]]); // Create a new Map with the role and its ID
+    } else {
+      return undefined;
+    }
+  }
 }

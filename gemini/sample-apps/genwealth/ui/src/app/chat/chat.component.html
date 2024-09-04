@@ -1,3 +1,5 @@
+<mat-card>
+@if (validRole) {
 <mat-drawer-container autosize>
     <mat-drawer #drawer class="example-sidenav" mode="side" position="end">
       <app-chat-configuration [chatRequest]="chatRequest"></app-chat-configuration>
@@ -31,3 +33,7 @@
         </mat-card-actions>
     </mat-card>
 </mat-drawer-container>
+} @else {
+    <mat-card-title>Must be logged in as Admin to use this module.</mat-card-title>
+}
+</mat-card>
