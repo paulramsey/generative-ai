@@ -69,7 +69,7 @@ This guide assumes you have already deployed the GenWealth app as defined [here]
 
     ```
 
-1. Create a secret containing your Vertex AI Service Account json file. Here “vertex-ai-secret” is the name of the secret.
+1. Create a secret containing your Vertex AI Service Account json file. Here `vertex-ai-secret` is the name of the secret.
 
     ```bash
     kubectl create secret generic vertex-ai-secret --from-file=./private-key.json
@@ -187,9 +187,9 @@ Execute the steps below to install AlloyDB Omni on the GKE cluster. See the [All
     kubectl get service alloydb-svc
     ```
 
-1. Login to pgAdmin as described in the [backend demo walkthrough](../../walkthroughs/backend-demo-walkthrough.md).
+2. Login to pgAdmin as described in the [backend demo walkthrough](../walkthroughs/backend-demo-walkthrough.md).
 
-1. Create a new connection to AlloyDB Omni in pgAdmin using the external IP of the `alloydb-svc` load balancer created above. Use the `postgres` user and the password you defined in the kubernetes manifest earlier when you created the AlloyDB Omni cluster.
+3. Create a new connection to AlloyDB Omni in pgAdmin using the external IP of the `alloydb-svc` load balancer created above. Use the `postgres` user and the password you defined in the kubernetes manifest earlier when you created the AlloyDB Omni cluster.
 
 ## Configure the Database
 

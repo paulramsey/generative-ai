@@ -51,7 +51,13 @@ then you will need to manually address them before submitting your PR.
 Note: For official, only submit one notebook per PR.
 
 ```shell
-docker run -v ${PWD}:/setup/app gcr.io/cloud-devrel-public-resources/notebook_linter:latest your_notebook
+python3 -m pip install -U -r .github/workflows/notebook_linter/requirements.txt
+.github/workflows/notebook_linter/run_linter.sh
+```
+
+```shell
+python3 -m pip install --upgrade nox
+nox -s format
 ```
 
 ## Code Reviews
@@ -77,10 +83,24 @@ You may follow these steps to contribute:
 3. **Work on your forked repository's feature branch.** This is where you will make your changes to the code.
 4. **Commit your updates on your forked repository's feature branch.** This will save your changes to your copy of the repository.
 5. **Submit a pull request to the official repository's main branch.** This will request that your changes be merged into the official repository.
-6. **Resolve any lint errors.** This will ensure that your changes are formatted correctly.
+6. **Resolve any linting errors.** This will ensure that your changes are formatted correctly.
 
 Here are some additional things to keep in mind during the process:
 
 - **Read the [Google's Open Source Community Guidelines](https://opensource.google/conduct/).** The contribution guidelines will provide you with more information about the project and how to contribute.
 - **Test your changes.** Before you submit a pull request, make sure that your changes work as expected.
 - **Be patient.** It may take some time for your pull request to be reviewed and merged.
+
+---
+
+## For Google Employees
+
+Complete the following steps to register your GitHub account and be added as a contributor to this repository.
+
+1. Register your GitHub account at [go/github](http://go/github)
+
+1. Once you have registered, go to [go/github-googlecloudplatform](http://go/github-googlecloudplatform) and request to join the GoogleCloudPlatform organization. Check the box "I need write access on a public repository".
+
+1. You'll receive an email to your GitHub registered email to approve the request to join. Approve it.
+
+1. Request to join this team [GoogleCloudPlatform/teams/generative-ai-samples-contributors](https://github.com/orgs/GoogleCloudPlatform/teams/generative-ai-samples-contributors/members)
