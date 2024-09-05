@@ -160,10 +160,10 @@ echo "Waiting for firewall rules to take effect"
 sleep 30
 
 # Run script against pgadmin instance
-gcloud compute ssh "$GCE_INSTANCE" --zone="$ZONE" --command="rm -f /tmp/install-pgadmin.sh"
+gcloud compute ssh "$GCE_INSTANCE" --zone="$ZONE" --command="rm -f /tmp/deploy-database.sh"
 gcloud compute ssh "$GCE_INSTANCE" --zone="$ZONE" --command="rm -f /tmp/env.sh"
-gcloud compute copy-files ./deployment/install-pgadmin.sh "$GCE_INSTANCE":/tmp/install-pgadmin.sh --zone="$ZONE"
+gcloud compute copy-files ./deployment/deploy-database.sh "$GCE_INSTANCE":/tmp/deploy-database.sh --zone="$ZONE"
 gcloud compute copy-files ./env.sh "$GCE_INSTANCE":/tmp/env.sh --zone="$ZONE"
-gcloud compute ssh "$GCE_INSTANCE" --zone="$ZONE" --command="chmod +x /tmp/install-pgadmin.sh"
+gcloud compute ssh "$GCE_INSTANCE" --zone="$ZONE" --command="chmod +x /tmp/deploy-database.sh"
 gcloud compute ssh "$GCE_INSTANCE" --zone="$ZONE" --command="chmod +x /tmp/env.sh"
-gcloud compute ssh "$GCE_INSTANCE" --zone="$ZONE" --command="/tmp/install-pgadmin.sh"
+gcloud compute ssh "$GCE_INSTANCE" --zone="$ZONE" --command="/tmp/deploy-database.sh"
