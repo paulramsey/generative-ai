@@ -31,7 +31,7 @@ sql=$(
 CREATE DATABASE ragdemos;
 EOF
 )
-echo $sql | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d postgres
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d postgres
 
 sleep 3
 
@@ -41,9 +41,13 @@ sql=$(
   cat <<EOF
 CREATE EXTENSION IF NOT EXISTS google_ml_integration VERSION '1.3' CASCADE;
 GRANT EXECUTE ON FUNCTION embedding TO postgres;
+ALTER SYSTEM SET alloydb_ai_nl.enabled=on;
+SELECT pg_reload_conf();
+SELECT pg_sleep(1);
+CREATE EXTENSION alloydb_ai_nl cascade;
 EOF
 )
-echo $sql | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
 
 # Install pgvector extension
 sql=$(
@@ -51,9 +55,9 @@ sql=$(
 CREATE EXTENSION IF NOT EXISTS vector CASCADE;
 EOF
 )
-echo $sql | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
 
-# Register textembedding-gecko embedding model
+# Register textembedding-gecko@003 embedding model
 sql=$(
   cat <<EOF
 CALL google_ml.create_model (
@@ -65,7 +69,7 @@ CALL google_ml.create_model (
 );
 EOF
 )
-echo $sql | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
 
 # Register Gemini model
 GEMINI_ENDPOINT="https://${REGION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${REGION}/publishers/google/models/gemini-1.0-pro:generateContent"
@@ -80,7 +84,7 @@ google_ml.create_model (
 );
 EOF
 )
-echo $sql | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
 
 
 # Create investments table and indexes
@@ -268,6 +272,157 @@ EXECUTE PROCEDURE update_analysis_embedding();
 EOF
 )
 echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+
+
+# Create and populate columns to be used in Parameterized Secure Views
+echo "Creating and populating columns to be used in Parameterized Secure Views"
+sql=$(
+  cat <<EOF
+-- Create columns
+ALTER TABLE user_profiles
+ADD subscriber_tier INT;
+
+ALTER TABLE user_profiles
+ADD advisor_id INT;
+
+ALTER TABLE investments
+ADD subscription_tier INT;
+
+-- Assign even distribution of non-subscribers (0), basic subscribers (1), and premium subscribers (2)
+UPDATE user_profiles
+SET subscriber_tier = id % 3;
+
+-- Assign users evenly to 10 advisors
+UPDATE user_profiles
+SET advisor_id = id % 10;
+
+-- Assign subscription tiers to investments
+UPDATE investments
+SET subscription_tier = id % 3;
+
+EOF
+)
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+
+# Enable PSV extension
+
+# Create Parameterized Secure Views
+echo "Creating Parameterized Secure Views"
+sql=$(
+  cat <<EOF
+CREATE VIEW psv_conversation_history WITH (security_barrier) AS
+SELECT id, 
+	user_id, 
+	user_prompt, 
+	user_prompt_embedding, 
+	ai_response, 
+	ai_response_embedding, 
+	datetime
+FROM conversation_history
+WHERE user_id = $@user_id;
+
+CREATE VIEW psv_investments WITH (security_barrier) AS
+SELECT id, 
+	ticker, 
+	etf, 
+	market, 
+	rating, 
+	overview, 
+	overview_embedding, 
+	analysis, 
+	analysis_embedding, 
+	subscription_tier
+FROM investments
+WHERE subscription_tier <= $@subscription_tier;
+
+CREATE VIEW psv_user_profiles WITH (security_barrier) AS
+SELECT id, 
+	username, 
+	email, 
+	password_hash, 
+	first_name, 
+	last_name, 
+	created_at, 
+	updated_at, 
+	age, 
+	risk_profile, 
+	bio, 
+	bio_embedding, 
+	subscriber_tier,
+	advisor_id
+FROM user_profiles
+WHERE advisor_id = $@advisor_id;
+
+EOF
+)
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+
+# Create psv_user
+echo "Creating psv_user"
+sql=$(
+  cat <<EOF
+CREATE USER psv_user WITH PASSWORD '${ALLOYDB_PASSWORD}';
+
+EOF
+)
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+
+# Grant permissions to psv_user
+echo "Granting permissions to psv_user"
+sql=$(
+  cat <<EOF
+-- Grant permissions to PSVs
+GRANT SELECT ON psv_conversation_history TO psv_user;
+GRANT SELECT ON psv_investments TO psv_user;
+GRANT SELECT ON psv_user_profiles TO psv_user;
+EOF
+)
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+
+# Add NL2SQL examples
+echo "Adding NL2SQL examples"
+sql=$(
+  cat <<EOF
+SELECT alloydb_ai_nl.g_admit_example(
+	nl_example => 'Run a vector search on the investments table that searches the overview embedding column for the string "high inflation, hedge".',
+	sql_example => 'SELECT ticker, etf, rating, analysis,
+	analysis_embedding <=> google_ml.embedding(''textembedding-gecko@003'', ''high inflation, hedge'')::vector AS distance
+	FROM investments
+	ORDER BY distance
+	LIMIT 5;',
+	explanation_example => 'This SQL query uses the AlloyDB AI embedding function to get an embedding for the search phrase "high inflation, hedge", then it compares the generated embedding to vector embeddings stored in the analysis_embedding column. It returns the 5 most relevant results based on vector distances of the search embedding and the stored embeddings. We use the analysis_embedding field because the question is about investment performance.'
+)
+
+SELECT alloydb_ai_nl.g_admit_example(
+	nl_example => 'How can I invest in sustainable energy?',
+	sql_example => 'SELECT ticker, etf, rating, overview,
+	overview_embedding <=> google_ml.embedding(''textembedding-gecko@003'', ''sustainable energy'')::vector AS distance
+	FROM investments
+	ORDER BY distance
+	LIMIT 5;',
+	explanation_example => 'This SQL query uses the AlloyDB AI embedding function to get an embedding for the search phrase "sustainable energy", then it compares the generated embedding to vector embeddings stored in the overview_embedding column. It returns the 5 most relevant results based on vector distances of the search embedding and the stored embeddings. We use the overview_embedding field because the question is about the company objectives.'
+)
+
+SELECT alloydb_ai_nl.g_admit_example(
+	nl_example => 'Which clients might be interested in a new Bitcoin ETF?',
+	sql_example => 'SELECT id, first_name, last_name, email, age, risk_profile, bio,
+		bio_embedding <=> google_ml.embedding(''textembedding-gecko@003'', ''young aggressive investor'')::vector AS distance
+		FROM user_profiles ORDER BY distance LIMIT 50;',
+	explanation_example => 'This SQL query uses the AlloyDB AI embedding function to get an embedding for the search phrase "young aggressive investor", then it compares the generated embedding to vector embeddings stored in the bio_embedding column. It returns the 50 most relevant results based on vector distances of the search embedding and the stored embeddings. We use the user_profiles table because the question is about clients.'
+)
+
+SELECT alloydb_ai_nl.g_admit_example(
+	nl_example => 'Are any of my clients managing significant debt?',
+	sql_example => 'SELECT id, first_name, last_name, email, age, risk_profile, bio,
+		bio_embedding <=> google_ml.embedding(''textembedding-gecko@003'', ''significant debt'')::vector AS distance
+		FROM user_profiles ORDER BY distance LIMIT 50;',
+	explanation_example => 'This SQL query uses the AlloyDB AI embedding function to get an embedding for the search phrase "significant debt", then it compares the generated embedding to vector embeddings stored in the bio_embedding column. It returns the 50 most relevant results based on vector distances of the search embedding and the stored embeddings. We use the user_profiles table because the question is about clients.'
+)
+
+EOF
+)
+echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres -d ragdemos
+
 
 echo "Access the pgadmin interface using the URL below:"
 echo "http://$(curl -s ifconfig.me)/pgadmin4"
