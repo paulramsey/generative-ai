@@ -8,8 +8,10 @@
     <app-sql-statement [query]="query">
         @if(dataSource.data.length == 0) {
             <div class="noResults">No results were found</div>
+        } @else if(enablePsv) {
+            See Executed SQL Query (Secured with PSV)
         } @else {
-            See Query
+            See Executed SQL Query
         }
     </app-sql-statement>
     <table mat-table

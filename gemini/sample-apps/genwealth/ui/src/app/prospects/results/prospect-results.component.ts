@@ -11,6 +11,7 @@ import { Prospect, QueryResponse } from '../../services/genwealth-api';
 import { TextToHtmlPipe } from '../../common/text-to-html.pipe';
 import { SqlStatementComponent } from '../../common/sql-statement/sql-statement.component';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { RoleService } from '../../services/genwealth-api';
 
 @Component({
   selector: 'app-prospect-results',
@@ -35,7 +36,9 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
   ],  
 })
 export class ProspectResultsComponent implements OnInit {
-  constructor(private breakpointObserver: BreakpointObserver) {}
+  constructor(private breakpointObserver: BreakpointObserver,
+    private RoleService:RoleService
+  ) {}
 
   @Input()
   set prospects(observable: Observable<QueryResponse<Prospect>>) {
@@ -44,7 +47,25 @@ export class ProspectResultsComponent implements OnInit {
         this.dataSource.data = response.data; 
         this.query = response.query;
         this.errorDetail = response.errorDetail;
+
+        if (this.currentRole !== 'Admin') {
+          this.enablePsv = true;
+        } else {
+          this.enablePsv = false;
+        }
     }});
+
+    this.RoleService.role$.subscribe(roleMap => {
+      if (roleMap) {
+        const [role] = roleMap.keys(); // Get the role name from the Map
+        this.currentRole = role;
+        const roleArray = roleMap.get(role);
+        this.currentRoleId = roleArray? roleArray[0] : undefined;
+        this.subscriptionTier = roleArray? roleArray[1] : undefined;
+      } else {
+        this.currentRole = undefined;
+      }
+    });
   }
 
   columnsToDisplaySmall: string[] = ['id', 'firstName','lastName'];
@@ -55,6 +76,12 @@ export class ProspectResultsComponent implements OnInit {
   dataSource = new MatTableDataSource<Prospect>();
   query?: string = undefined;
   errorDetail?: string = undefined;
+
+  currentRole: string | undefined;
+  currentRoleId: number | null | undefined;
+  currentRoleMap: Map<string, Array<number | null>> | undefined;
+  subscriptionTier: number | null | undefined;
+  enablePsv: boolean | undefined;
 
   ngOnInit() { 
     this.breakpointObserver

@@ -1,7 +1,10 @@
-import { Database, camelCaseRows, safeString } from './database';
+import { Database, DatabasePsv, camelCaseRows, safeString } from './database';
 
 export class Prospects {
-    constructor(private db: Database) { }
+    constructor(
+        private db: Database,
+        private dbPsv: DatabasePsv
+    ) { }
 
     private async executeQuery(query: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Promise<{ data: any[], query: string, errorDetail?: string }> {
         let flattenResults = false;
@@ -20,7 +23,13 @@ export class Prospects {
         }
 
         try {
-            const rows = await this.db.query(query);
+            let rows;
+            
+            if (currentRole === 'Admin') {
+                rows = await this.db.query(query);
+            } else {
+                rows = await this.dbPsv.query(query); // Use dbPsv for PSV queries
+            }
 
             if (flattenResults) {
                 for (let row of rows) {
