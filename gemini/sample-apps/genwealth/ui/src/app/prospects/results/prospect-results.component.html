@@ -1,7 +1,13 @@
 <div>
+    <div *ngIf="errorDetail">
+        <app-sql-statement [query]="errorDetail">
+            <p style="color:red;">ERROR: See details</p>
+        </app-sql-statement>
+    </div>
+
     <app-sql-statement [query]="query">
         @if(dataSource.data.length == 0) {
-            <div class="no-results">No results were found</div>
+            <div class="noResults">No results were found</div>
         } @else {
             See Query
         }

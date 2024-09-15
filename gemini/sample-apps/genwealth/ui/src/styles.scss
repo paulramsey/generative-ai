@@ -3,6 +3,8 @@
 
 @include mat.core();
 
+@import 'highlight.js/styles/github.css';
+
 $cymbal-primary: mat.define-palette(mat.$green-palette, 700); 
 $cymbal-accent:  mat.define-palette(mat.$blue-palette, 500);
 $cymbal-warn:    mat.define-palette(mat.$red-palette);
@@ -39,7 +41,9 @@ mat-card-title {
 
 .snackbar-error {
   --mdc-snackbar-container-color: #FF0000;
-  span { color: black; }
+  background-color: #FF0000;
+  span { color: white;}
+  overflow: scroll;
 }
 
 @include mat.all-component-themes($cymbal-theme);

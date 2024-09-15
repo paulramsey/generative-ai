@@ -1,5 +1,4 @@
 <mat-card>
-    @if (validRole) {
     <mat-card-title>Ideal Investments for {{ currentRole }}</mat-card-title>
     <mat-radio-group [(ngModel)]="searchType">
         <mat-radio-button value="{{searchTypes.KEYWORD}}">Keyword Search</mat-radio-button>
@@ -28,8 +27,4 @@
         </button>
     </mat-card-actions>
     <app-investment-results [investments]="investments"></app-investment-results>
-    } @else {
-        <mat-card-title>Must be logged in as Admin or Subscriber to use this module.</mat-card-title>
-    }
-
 </mat-card>

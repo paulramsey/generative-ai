@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, ApplicationRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GenWealthServiceClient, Investment, QueryResponse } from '../services/genwealth-api';
 import { Observable, Subscription, catchError, finalize } from 'rxjs';
@@ -48,11 +48,13 @@ export class InvestmentsComponent implements OnInit {
     private genWealthClient: GenWealthServiceClient,
     private route: ActivatedRoute,
     private error: SnackBarErrorComponent,
-    private RoleService: RoleService) {}
+    private RoleService: RoleService,
+    private ApplicationRef: ApplicationRef) {}
 
   currentRole: string | undefined;
-  currentRoleId: number | undefined;
-  currentRoleMap: Map<string, number> | undefined;
+  currentRoleId: number | null | undefined;
+  currentRoleMap: Map<string, Array<number | null>> | undefined;
+  subscriptionTier: number | null | undefined;
   validRole: boolean | undefined;
   
   ngOnInit(): void {
@@ -62,7 +64,9 @@ export class InvestmentsComponent implements OnInit {
       if (roleMap) {
         const [role] = roleMap.keys(); // Get the role name from the Map
         this.currentRole = role;
-        this.currentRoleId = roleMap.get(role)
+        const roleArray = roleMap.get(role);
+        this.currentRoleId = roleArray? roleArray[0] : undefined;
+        this.subscriptionTier = roleArray? roleArray[1] : undefined;
       } else {
         this.currentRole = undefined;
       }
@@ -95,37 +99,40 @@ export class InvestmentsComponent implements OnInit {
     switch (this.searchType) {
       case SearchType.KEYWORD:
         this.investments =
-         this.genWealthClient.searchInvestments(this.investmentSearch.split(','), this.currentRole!, this.currentRoleId!).pipe(
+         this.genWealthClient.searchInvestments(this.investmentSearch.split(','), this.currentRole!, this.currentRoleId!, this.subscriptionTier!).pipe(
             catchError((err: any) => {
               this.error.showError('Unable to search investments', err);
               return [];
             }),
             finalize(() => {
               this.loading = false;
+              this.ApplicationRef.tick();
             })
           );
         break;
       case SearchType.SEMANTIC:
         this.investments =
-          this.genWealthClient.semanticSearchInvestments(this.investmentSearch, this.currentRole!, this.currentRoleId!).pipe(
+          this.genWealthClient.semanticSearchInvestments(this.investmentSearch, this.currentRole!, this.currentRoleId!, this.subscriptionTier!).pipe(
             catchError((err: any) => {
               this.error.showError('Unable to search investments', err);
               return [];
             }),
             finalize(() => {
               this.loading = false;
+              this.ApplicationRef.tick();
             })
           );
         break;
       case SearchType.NATURAL:
         this.investments =
-          this.genWealthClient.naturalSearchInvestments(this.investmentSearch, this.currentRole!, this.currentRoleId!).pipe(
+          this.genWealthClient.naturalSearchInvestments(this.investmentSearch, this.currentRole!, this.currentRoleId!, this.subscriptionTier!).pipe(
             catchError((err: any) => {
-              this.error.showError('SQL generation failed.', err);
+              this.error.showError(JSON.stringify(err), err);
               return [];
             }),
             finalize(() => {
               this.loading = false;
+              this.ApplicationRef.tick();
             })
           );
         break;

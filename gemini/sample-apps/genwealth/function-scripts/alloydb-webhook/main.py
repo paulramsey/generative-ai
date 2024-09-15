@@ -127,7 +127,8 @@ def exec_natural_language_sql(request_json, pool):
 
     sql = f"""
     SELECT alloydb_ai_nl.get_sql(
-        nl_query => '{natural_language_query}'
+        nl_config_id => 'ragdemos',
+        nl_question => '{natural_language_query}'
     )
     """
 

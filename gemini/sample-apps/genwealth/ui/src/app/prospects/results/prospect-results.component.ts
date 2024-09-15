@@ -42,17 +42,19 @@ export class ProspectResultsComponent implements OnInit {
     observable.subscribe({ next: response => {
       if (response.data)
         this.dataSource.data = response.data; 
-      this.query = response.query;
+        this.query = response.query;
+        this.errorDetail = response.errorDetail;
     }});
   }
 
   columnsToDisplaySmall: string[] = ['id', 'firstName','lastName'];
-  columnsToDisplayLarge: string[] =[...this.columnsToDisplaySmall, 'email','age','riskProfile'];
+  columnsToDisplayLarge: string[] =[...this.columnsToDisplaySmall, 'email','age','riskProfile', 'advisorId'];
   columnsToDisplay: string[] = this.columnsToDisplayLarge;
   columnsToDisplayWithExpand: string[] = [];
   expandedElement?: Prospect | null;  
   dataSource = new MatTableDataSource<Prospect>();
   query?: string = undefined;
+  errorDetail?: string = undefined;
 
   ngOnInit() { 
     this.breakpointObserver

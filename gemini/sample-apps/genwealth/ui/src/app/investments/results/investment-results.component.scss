@@ -14,11 +14,35 @@
     padding: 25px;
 }
 
-.rating {
+.investmentSubtitle {
     font-weight: bolder;
-    font-variant: small-caps;
+    color: white;
+    font-size: 16px;
 }
 
-.no-results {
+.mat-divider {
+    border-top-color: white;
+    margin-top: 0;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.investmentDetail {
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: lighter;
+}
+
+.subscriptionTier {
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+    color: white;
+    font-style: oblique;
+    font-weight: lighter;
+    float: right;
+}
+
+.noResults{
     color: red;
+    font-weight: bold;
 }

@@ -7,6 +7,8 @@ export interface QueryResponse<T> {
     query?: string;
     data?: T[];
     generatedQuery?: string;
+    errorDetail?: string;
+    getSqlQuery?: string;
 }
 
 export interface Investment {
@@ -15,16 +17,18 @@ export interface Investment {
     rating?: string;
     analysis?: string;
     distance?: number;
+    subscriptionTier?: number;
 }
 
 export interface Prospect {
     firstName?: string;
     lastName?: string;
     email?: string;
-    age?: number,
+    age?: number;
     risk_profile?: string;
-    bio?: string,
+    bio?: string;
     distance?: number;
+    advisorId?: number;
 }
 
 export interface ChatResponse {
@@ -50,16 +54,18 @@ export class ChatRequest {
 
 
 export interface GenWealthService {
-    searchInvestments(terms: string[], currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>>;
-    semanticSearchInvestments(prompt: string, currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>>;
-    naturalSearchInvestments(prompt: string, currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>>;
+    searchInvestments(terms: string[], currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>>;
+    semanticSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>>;
+    naturalSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>>;
     semanticSearchProspects(
         prompt: string,
         currentRole: string, 
         currentRoleId: number,
+        subscriptionTier: number,
         riskProfile?: string,
         minAge?: number,
-        maxAge?: number): Observable<QueryResponse<Prospect>>;
+        maxAge?: number,
+        advisorId?: number): Observable<QueryResponse<Prospect>>;
     chat(request: ChatRequest): Observable<ChatResponse>; 
     uploadProspectus(ticker: string, file: File): Observable<void>;
     searchProspectus(ticker: string, query: string): Observable<string>;
@@ -71,35 +77,36 @@ export interface GenWealthService {
 export class GenWealthServiceClient implements GenWealthService {
     constructor(private http: HttpClient, @Inject(BASE_URL) private baseUrl: string) {}
     
-    searchInvestments(terms: string[], currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>> {
+    searchInvestments(terms: string[], currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>> {
         if (terms.length === 1) {
             // Caveat - if only a single term is passed, the single term will be split into each char
             // prevent this by adding empty.
             terms = [terms[0], ''];
         }
         return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/search`, {
-            params: { terms: terms, currentRole: currentRole, currentRoleId: currentRoleId }
+            params: { terms: terms, currentRole: currentRole, currentRoleId: currentRoleId, subscriptionTier: subscriptionTier}
         });
     }
 
-    semanticSearchInvestments(prompt: string, currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>> {
+    semanticSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>> {
         return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/semantic-search`, {
-            params: { prompt: prompt, currentRole: currentRole, currentRoleId: currentRoleId}
+            params: { prompt: prompt, currentRole: currentRole, currentRoleId: currentRoleId, subscriptionTier: subscriptionTier}
         });
     }
 
-    naturalSearchInvestments(prompt: string, currentRole: string, currentRoleId: number): Observable<QueryResponse<Investment>> {
+    naturalSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>> {
         return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/natural-search`, {
-            params: { prompt: prompt, currentRole: currentRole, currentRoleId: currentRoleId }
+            params: { prompt: prompt, currentRole: currentRole, currentRoleId: currentRoleId, subscriptionTier: subscriptionTier }
         });
     }
 
-    semanticSearchProspects(prompt: string, currentRole: string, currentRoleId: number, riskProfile?: string | undefined, minAge?: number | undefined, maxAge?: number | undefined): 
+    semanticSearchProspects(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number, riskProfile?: string | undefined, minAge?: number | undefined, maxAge?: number | undefined, advisorId?: number | undefined): 
             Observable<QueryResponse<Prospect>> {
         let params: HttpParams = new HttpParams().set('prompt', prompt);
 
         params = params.set('currentRole', currentRole);
         params = params.set('currentRoleId', currentRoleId)
+        params = params.set('subscriptionTier', subscriptionTier)
         
         if (riskProfile) {
             params = params.set('risk_profile', riskProfile);
@@ -147,25 +154,27 @@ export class GenWealthServiceClient implements GenWealthService {
     providedIn: 'root'
 })
 export class RoleService {
-  private roleChangeSource = new BehaviorSubject<Map<string, number> 
+  private roleChangeSource = new BehaviorSubject<Map<string, Array<number | null>> 
  | undefined>(undefined);
   role$ = this.roleChangeSource.asObservable(); 
 
-  updateRole(newRole: Map<string, number> | undefined) {
+  updateRole(newRole: Map<string, Array<number | null>> | undefined) {
     this.roleChangeSource.next(newRole);
   }
 
-  lookupRoleDetails(role: string): Map<string, number> | undefined {
-    const roleMap: Map<string, number> = new Map([
-      ["Advisor (Paul Ramsey)", 1],
-      ["Advisor (Evelyn Sterling)", 2],
-      ["Advisor (Arthur Kensington)", 3],
-      ["Advisor (Penelope Wainwright)", 4],
-      ["Advisor (Sebastian Thorne)", 5],
-      ["Subscriber (Basic)", 0],
-      ["Subscriber (Intermediate)", 1],
-      ["Subscriber (Premium)", 2],
-      ["Admin", 0]
+  lookupRoleDetails(role: string): Map<string, Array<number | null>> | undefined {
+    // Array should be formed as follows:
+    // ["Role (Name)", [role_id, subscription_id]]
+    const roleMap: Map<string, Array<number | null>> = new Map([
+      ["Advisor (Paul Ramsey)", [1, 2]],
+      ["Advisor (Evelyn Sterling)", [2, 2]],
+      ["Advisor (Arthur Kensington)", [3, 2]],
+      ["Advisor (Penelope Wainwright)", [4, 2]],
+      ["Advisor (Sebastian Thorne)", [5, 2]],
+      ["Subscriber (Basic)", [999, 0]],
+      ["Subscriber (Intermediate)", [999, 1]],
+      ["Subscriber (Premium)", [999, 2]],
+      ["Admin", [0, 2]]
     ]);
   
     const id = roleMap.get(role);

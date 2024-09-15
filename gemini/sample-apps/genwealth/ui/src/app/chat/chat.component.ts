@@ -49,8 +49,9 @@ export class ChatComponent implements OnInit {
   chatResponse?: ChatResponse = undefined;
 
   currentRole: string | undefined;
-  currentRoleId: number | undefined;
-  currentRoleMap: Map<string, number> | undefined;
+  currentRoleId: number | null | undefined;
+  currentRoleMap: Map<string, Array<number | null>> | undefined;
+  subscriptionTier: number | null | undefined;
   validRole: boolean | undefined;
   
   constructor(
@@ -70,7 +71,9 @@ export class ChatComponent implements OnInit {
       if (roleMap) {
         const [role] = roleMap.keys(); // Get the role name from the Map
         this.currentRole = role;
-        this.currentRoleId = roleMap.get(role)
+        const roleArray = roleMap.get(role);
+        this.currentRoleId = roleArray? roleArray[0] : undefined;
+        this.subscriptionTier = roleArray? roleArray[1] : undefined;
       } else {
         this.currentRole = undefined;
       }

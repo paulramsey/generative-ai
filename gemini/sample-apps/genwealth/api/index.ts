@@ -44,8 +44,9 @@ app.get('/api/investments/search', async (req: express.Request, res: express.Res
     const terms: string[] = req.query.terms as string[];
     const currentRole: string = req.query.currentRole as string;
     const currentRoleId: number = req.query.currentRoleId as unknown as number;
+    const subscriptionTier: number = req.query.subscriptionTier as unknown as number;
 
-    const response = await investments.search(terms, currentRole, currentRoleId);
+    const response = await investments.search(terms, currentRole, currentRoleId, subscriptionTier);
     res.json(response);
   }
   catch (err)
@@ -63,8 +64,9 @@ app.get('/api/investments/semantic-search', async (req: express.Request, res: ex
     const prompt: string = req.query.prompt as string;
     const currentRole: string = req.query.currentRole as string;
     const currentRoleId: number = req.query.currentRoleId as unknown as number;
+    const subscriptionTier: number = req.query.subscriptionTier as unknown as number;
 
-    const response = await investments.semanticSearch(prompt, currentRole, currentRoleId);
+    const response = await investments.semanticSearch(prompt, currentRole, currentRoleId, subscriptionTier);
     res.json(response);
   }
     catch (err)
@@ -82,8 +84,9 @@ app.get('/api/investments/natural-search', async (req: express.Request, res: exp
     const prompt: string = req.query.prompt as string;
     const currentRole: string = req.query.currentRole as string;
     const currentRoleId: number = req.query.currentRoleId as unknown as number;
+    const subscriptionTier: number = req.query.subscriptionTier as unknown as number;
 
-    const response = await investments.naturalSearch(prompt, currentRole, currentRoleId);
+    const response = await investments.naturalSearch(prompt, currentRole, currentRoleId, subscriptionTier);
     res.json(response);
   }
     catch (err)
@@ -104,8 +107,9 @@ app.get('/api/investments/natural-search', async (req: express.Request, res: exp
     const maxAge: number | undefined = req.query.max_age ? Number(req.query.max_age) : undefined;
     const currentRole: string = req.query.currentRole as string;
     const currentRoleId: number = req.query.currentRoleId as unknown as number;
+    const subscriptionTier: number = req.query.subscriptionTier as unknown as number;
 
-    const response = await prospects.semanticSearch(prompt, currentRole, currentRoleId, riskProfile, minAge, maxAge);
+    const response = await prospects.semanticSearch(prompt, currentRole, currentRoleId, subscriptionTier, riskProfile, minAge, maxAge);
     res.json(response);
   }
   catch (err)

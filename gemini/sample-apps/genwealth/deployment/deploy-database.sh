@@ -292,9 +292,9 @@ ADD subscription_tier INT;
 UPDATE user_profiles
 SET subscriber_tier = id % 3;
 
--- Assign users evenly to 10 advisors
+-- Assign users evenly to 5 advisors
 UPDATE user_profiles
-SET advisor_id = id % 10;
+SET advisor_id = id % 5;
 
 -- Assign subscription tiers to investments
 UPDATE investments

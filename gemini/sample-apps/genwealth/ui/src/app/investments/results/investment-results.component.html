@@ -1,28 +1,57 @@
-<div *ngIf="data">
+<div>
+
+<div *ngIf="data && data.length == 0">
+    <mat-card>
+        <span class="noResults">
+            No results found.
+        </span>
+    </mat-card>
+</div>
+
+<div *ngIf="errorDetail">
+    <app-sql-statement [query]="errorDetail">
+        <p style="color:red;">ERROR: See details</p>
+    </app-sql-statement>
+</div>
+
+<div *ngIf="getSqlQuery">
+    <app-sql-statement [query]="getSqlQuery">
+        See Original SQL Query
+    </app-sql-statement>
+</div>
+
+<div *ngIf="generatedQuery">
+    <app-sql-statement [query]="generatedQuery">
+        See Generated SQL Query (AlloyDB NL2SQL)
+    </app-sql-statement>
+</div>
+
+<div *ngIf="query">
+    
     <app-sql-statement [query]="query">
-        @if(data.length == 0) {
-            <div class="no-results">No results were found</div>
+        @if(enablePsv) {
+            See Executed SQL Query (Secured with PSV)
         } @else {
-            See Query
+            See Executed SQL Query
         }
     </app-sql-statement>
+</div>
 
-    <div *ngIf="generatedQuery">
-        <app-sql-statement [query]="generatedQuery">
-            See Generated SQL (AlloyDB "Magic")
-        </app-sql-statement>
-    </div>
-
+<div *ngIf="data && data.length > 0">
     @if(data[0].hasOwnProperty('ticker')) {
     <div class="investment-container">
         <mat-card *ngFor="let investment of data" class="investment-card">
-            <mat-card-title>{{investment.ticker}}</mat-card-title>
-            <mat-card-subtitle *ngIf="investment.rating">
-                <div>
-                    Rating: <span class="rating">{{investment.rating}}</span>
-                </div>
+            <mat-card-subtitle *ngIf="investment.subscriptionTier || investment.subscriptionTier === 0">
+                <span class="subscriptionTier">Subscription Tier:  {{investment.subscriptionTier}}</span><br>
             </mat-card-subtitle>
-            <div innerHtml="{{investment.analysis | textToHtml}}"></div>
+            <mat-card-subtitle>
+                <span class="investmentSubtitle">Ticker: {{investment.ticker}}</span>
+            </mat-card-subtitle>
+            <mat-card-subtitle *ngIf="investment.rating">
+                <span class="investmentSubtitle">Rating:  {{investment.rating}}</span><br>
+            </mat-card-subtitle>
+            <mat-divider></mat-divider>
+            <div class="investmentDetail" innerHtml="<br>{{investment.analysis | textToHtml}}"></div>
         </mat-card>
     </div>
     } @else {
@@ -37,4 +66,6 @@
                 <tr mat-row *matRowDef="let myRowData; columns: getColumns(data[0])"></tr>
         </table>
     }
+</div>
+
 </div>
