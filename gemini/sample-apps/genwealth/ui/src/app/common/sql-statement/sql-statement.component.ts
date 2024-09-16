@@ -5,10 +5,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { format } from 'sql-formatter';
 
 import { HighlightModule } from 'ngx-highlightjs';
-import hljs from 'highlight.js/lib/core';
-import sql from 'highlight.js/lib/languages/sql';
-
-hljs.registerLanguage('sql', sql); 
 
 @Component({
   selector: 'app-sql-statement',
@@ -30,7 +26,7 @@ export class SqlStatementComponent implements OnChanges { // Implement OnChanges
     if (changes['query']) {
       const newQuery = changes['query'].currentValue;
       if (newQuery) {
-        this.query = format(newQuery, { language: 'sql' });
+        this.query = format(newQuery, { language: 'postgresql' });
       } else {
         this.query = undefined;
       }

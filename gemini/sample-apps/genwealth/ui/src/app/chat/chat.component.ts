@@ -21,12 +21,6 @@ import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 
 import { RoleService } from '../services/genwealth-api';
 
-import { HighlightModule } from 'ngx-highlightjs'; 
-import hljs from 'highlight.js/lib/core';
-import sql from 'highlight.js/lib/languages/sql';
-
-hljs.registerLanguage('sql', sql); 
-
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -44,7 +38,6 @@ hljs.registerLanguage('sql', sql);
     MatIconModule,
     MatTooltipModule,
     ChatConfigurationComponent,
-    HighlightModule
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss'

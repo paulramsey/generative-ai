@@ -18,12 +18,6 @@ import { ActivatedRoute } from '@angular/router';
 
 import { RoleService } from '../services/genwealth-api';
 
-import { HighlightModule } from 'ngx-highlightjs'; 
-import hljs from 'highlight.js/lib/core';
-import sql from 'highlight.js/lib/languages/sql';
-
-hljs.registerLanguage('sql', sql); 
-
 @Component({
   selector: 'app-research',
   standalone: true,
@@ -40,8 +34,7 @@ hljs.registerLanguage('sql', sql);
     MatProgressSpinnerModule,
     TickerAutocompleteComponent,
     TextToHtmlPipe,
-    SqlStatementComponent,
-    HighlightModule
+    SqlStatementComponent
   ],
   templateUrl: './research.component.html',
   styleUrl: './research.component.scss',

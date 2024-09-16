@@ -11,12 +11,6 @@ import { TextToHtmlPipe } from '../../common/text-to-html.pipe';
 import { SqlStatementComponent } from '../../common/sql-statement/sql-statement.component';
 import { RoleService } from '../../services/genwealth-api';
 
-import { HighlightModule } from 'ngx-highlightjs'; 
-import hljs from 'highlight.js/lib/core';
-import sql from 'highlight.js/lib/languages/sql';
-
-hljs.registerLanguage('sql', sql); 
-
 @Component({
   selector: 'app-investment-results',
   standalone: true,
@@ -28,7 +22,6 @@ hljs.registerLanguage('sql', sql);
     TextToHtmlPipe,
     MatTableModule,
     MatDividerModule,
-    HighlightModule
   ],
   templateUrl: './investment-results.component.html',
   styleUrl: './investment-results.component.scss'

@@ -17,12 +17,6 @@ import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 
 import { RoleService } from '../services/genwealth-api';
 
-import { HighlightModule } from 'ngx-highlightjs'; 
-import hljs from 'highlight.js/lib/core';
-import sql from 'highlight.js/lib/languages/sql';
-
-hljs.registerLanguage('sql', sql); 
-
 @Component({
   selector: 'app-prospects',
   standalone: true,
@@ -36,8 +30,7 @@ hljs.registerLanguage('sql', sql);
     MatSlideToggleModule,
     MatIconModule,
     MatTooltipModule,    
-    ProspectResultsComponent,
-    HighlightModule
+    ProspectResultsComponent
   ],
   templateUrl: './prospects.component.html',
   styleUrl: './prospects.component.scss'

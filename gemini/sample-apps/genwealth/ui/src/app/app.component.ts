@@ -25,12 +25,6 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MarkdownViewerComponent } from './common/markdown-viewer/markdown-viewer.component';
 import { HttpClient } from '@angular/common/http';
 
-import { HighlightModule } from 'ngx-highlightjs'; 
-import hljs from 'highlight.js/lib/core';
-import sql from 'highlight.js/lib/languages/sql';
-
-hljs.registerLanguage('sql', sql); 
-
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -49,7 +43,6 @@ hljs.registerLanguage('sql', sql);
     MatDividerModule,
     MatMenuModule,
     MarkdownViewerComponent,
-    HighlightModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

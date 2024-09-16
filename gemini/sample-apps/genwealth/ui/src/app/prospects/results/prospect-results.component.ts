@@ -13,12 +13,6 @@ import { SqlStatementComponent } from '../../common/sql-statement/sql-statement.
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { RoleService } from '../../services/genwealth-api';
 
-import { HighlightModule } from 'ngx-highlightjs'; 
-import hljs from 'highlight.js/lib/core';
-import sql from 'highlight.js/lib/languages/sql';
-
-hljs.registerLanguage('sql', sql); 
-
 @Component({
   selector: 'app-prospect-results',
   standalone: true,
@@ -30,7 +24,6 @@ hljs.registerLanguage('sql', sql);
     SqlStatementComponent,
     MatIconModule,
     TextToHtmlPipe,
-    HighlightModule
   ],
   templateUrl: './prospect-results.component.html',
   styleUrl: './prospect-results.component.scss',
