@@ -21,6 +21,8 @@ import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 
 import { RoleService } from '../services/genwealth-api';
 
+import { HighlightModule } from 'ngx-highlightjs'; 
+
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -38,6 +40,7 @@ import { RoleService } from '../services/genwealth-api';
     MatIconModule,
     MatTooltipModule,
     ChatConfigurationComponent,
+    HighlightModule
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss'

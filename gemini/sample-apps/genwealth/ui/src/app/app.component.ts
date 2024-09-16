@@ -25,6 +25,8 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MarkdownViewerComponent } from './common/markdown-viewer/markdown-viewer.component';
 import { HttpClient } from '@angular/common/http';
 
+import { HighlightModule } from 'ngx-highlightjs'; 
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -42,7 +44,8 @@ import { HttpClient } from '@angular/common/http';
     MatCheckboxModule,
     MatDividerModule,
     MatMenuModule,
-    MarkdownViewerComponent
+    MarkdownViewerComponent,
+    HighlightModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

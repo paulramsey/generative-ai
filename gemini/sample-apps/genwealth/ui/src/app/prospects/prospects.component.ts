@@ -17,6 +17,8 @@ import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 
 import { RoleService } from '../services/genwealth-api';
 
+import { HighlightModule } from 'ngx-highlightjs'; 
+
 @Component({
   selector: 'app-prospects',
   standalone: true,
@@ -31,6 +33,7 @@ import { RoleService } from '../services/genwealth-api';
     MatIconModule,
     MatTooltipModule,    
     ProspectResultsComponent,
+    HighlightModule
   ],
   templateUrl: './prospects.component.html',
   styleUrl: './prospects.component.scss'

@@ -18,6 +18,8 @@ import { ActivatedRoute } from '@angular/router';
 
 import { RoleService } from '../services/genwealth-api';
 
+import { HighlightModule } from 'ngx-highlightjs'; 
+
 @Component({
   selector: 'app-research',
   standalone: true,
@@ -34,7 +36,8 @@ import { RoleService } from '../services/genwealth-api';
     MatProgressSpinnerModule,
     TickerAutocompleteComponent,
     TextToHtmlPipe,
-    SqlStatementComponent
+    SqlStatementComponent,
+    HighlightModule
   ],
   templateUrl: './research.component.html',
   styleUrl: './research.component.scss',

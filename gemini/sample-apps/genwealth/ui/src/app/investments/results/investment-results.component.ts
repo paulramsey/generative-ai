@@ -9,8 +9,9 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { TextToHtmlPipe } from '../../common/text-to-html.pipe';
 import { SqlStatementComponent } from '../../common/sql-statement/sql-statement.component';
-import { UntypedFormBuilder } from '@angular/forms';
 import { RoleService } from '../../services/genwealth-api';
+
+import { HighlightModule } from 'ngx-highlightjs'; 
 
 @Component({
   selector: 'app-investment-results',
@@ -22,7 +23,8 @@ import { RoleService } from '../../services/genwealth-api';
     SqlStatementComponent,
     TextToHtmlPipe,
     MatTableModule,
-    MatDividerModule
+    MatDividerModule,
+    HighlightModule
   ],
   templateUrl: './investment-results.component.html',
   styleUrl: './investment-results.component.scss'

@@ -18,6 +18,8 @@ import { ActivatedRoute } from '@angular/router';
 
 import { RoleService } from '../services/genwealth-api';
 
+import { HighlightModule } from 'ngx-highlightjs'; 
+
 export enum SearchType {
   KEYWORD = 'keyword',
   SEMANTIC = 'semantic',
@@ -38,6 +40,7 @@ export enum SearchType {
     MatTooltipModule,
     InvestmentResultsComponent,
     MatProgressSpinnerModule,
+    HighlightModule
   ],
   templateUrl: './investments.component.html',
   styleUrl: './investments.component.scss'

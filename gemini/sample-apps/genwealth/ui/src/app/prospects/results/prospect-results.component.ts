@@ -13,6 +13,8 @@ import { SqlStatementComponent } from '../../common/sql-statement/sql-statement.
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { RoleService } from '../../services/genwealth-api';
 
+import { HighlightModule } from 'ngx-highlightjs'; 
+
 @Component({
   selector: 'app-prospect-results',
   standalone: true,
@@ -24,6 +26,7 @@ import { RoleService } from '../../services/genwealth-api';
     SqlStatementComponent,
     MatIconModule,
     TextToHtmlPipe,
+    HighlightModule
   ],
   templateUrl: './prospect-results.component.html',
   styleUrl: './prospect-results.component.scss',
