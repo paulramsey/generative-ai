@@ -18,7 +18,7 @@ WORKDIR /app
 COPY ./ui .
 
 RUN npm install
-RUN npx ng build --output-path /dist
+RUN npm run build --output-path /dist  # Use npm run build
 
 ##
 ## Stage 3: Build Runtime
@@ -34,6 +34,9 @@ COPY --from=api-build /src/node_modules ./node_modules
 # Copy build artifacts from the ui-build stage
 COPY --from=ui-build /dist ./ui/dist/genwealth-advisor-ui
 
+# Set up the correct environment for highlight.js
+ENV NODE_ENV=production
+
 EXPOSE 8080
 
-CMD ["node", "index.js"] 
+CMD ["node", "index.js"]
