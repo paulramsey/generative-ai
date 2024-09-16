@@ -18,7 +18,7 @@ WORKDIR /app
 COPY ./ui .
 
 RUN npm install
-RUN npm run build --output-path /dist  # Use npm run build
+RUN npm run build -- --output-path /dist  # Add -- before --output-path
 
 ##
 ## Stage 3: Build Runtime
