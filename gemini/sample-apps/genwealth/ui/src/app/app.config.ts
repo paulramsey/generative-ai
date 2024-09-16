@@ -1,6 +1,7 @@
 import { ApplicationConfig, InjectionToken, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { provideHighlightOptions } from 'ngx-highlightjs';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -15,5 +16,9 @@ export const appConfig: ApplicationConfig = {
       useValue: '/api'
     },
     importProvidersFrom(HttpClientModule),
+    provideHighlightOptions({
+      fullLibraryLoader: () => import('highlight.js')
+    })
+
   ]
 };

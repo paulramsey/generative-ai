@@ -30,7 +30,7 @@ export class SqlStatementComponent implements OnChanges { // Implement OnChanges
     if (changes['query']) {
       const newQuery = changes['query'].currentValue;
       if (newQuery) {
-        this.query = format(newQuery, { language: 'postgresql' });
+        this.query = format(newQuery, { language: 'sql' });
       } else {
         this.query = undefined;
       }
