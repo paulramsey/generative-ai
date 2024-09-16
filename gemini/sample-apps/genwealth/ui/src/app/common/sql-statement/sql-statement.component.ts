@@ -1,8 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { HighlightModule } from 'ngx-highlightjs';
+
 import { format } from 'sql-formatter';
+
+import { HighlightModule } from 'ngx-highlightjs';
+import hljs from 'highlight.js/lib/core';
+import sql from 'highlight.js/lib/languages/sql';
+
+hljs.registerLanguage('sql', sql); 
 
 @Component({
   selector: 'app-sql-statement',
