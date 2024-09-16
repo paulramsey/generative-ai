@@ -153,6 +153,7 @@ Parmar
 Persero
 Phaidon
 Pharma
+PSV
 QPM
 Qwiklabs
 RAGAS
@@ -189,6 +190,7 @@ Smartbuy
 Storrer
 Strappy
 Surampudi
+tablefmt
 TARG
 TOKENLIST
 TPU
