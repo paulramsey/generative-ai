@@ -383,39 +383,43 @@ echo "$sql" | PGPASSWORD=${ALLOYDB_PASSWORD} psql -h "${ALLOYDB_IP}" -U postgres
 echo "Adding NL2SQL examples"
 sql=$(
   cat <<EOF
-SELECT alloydb_ai_nl.g_admit_example(
+SELECT alloydb_ai_nl.add_example(
 	nl_example => 'Run a vector search on the investments table that searches the overview embedding column for the string "high inflation, hedge".',
 	sql_example => 'SELECT ticker, etf, rating, analysis,
 	analysis_embedding <=> google_ml.embedding(''textembedding-gecko@003'', ''high inflation, hedge'')::vector AS distance
 	FROM investments
 	ORDER BY distance
 	LIMIT 5;',
+  context_example => 'ragdemos',
 	explanation_example => 'This SQL query uses the AlloyDB AI embedding function to get an embedding for the search phrase "high inflation, hedge", then it compares the generated embedding to vector embeddings stored in the analysis_embedding column. It returns the 5 most relevant results based on vector distances of the search embedding and the stored embeddings. We use the analysis_embedding field because the question is about investment performance.'
 )
 
-SELECT alloydb_ai_nl.g_admit_example(
+SELECT alloydb_ai_nl.add_example(
 	nl_example => 'How can I invest in sustainable energy?',
 	sql_example => 'SELECT ticker, etf, rating, overview,
 	overview_embedding <=> google_ml.embedding(''textembedding-gecko@003'', ''sustainable energy'')::vector AS distance
 	FROM investments
 	ORDER BY distance
 	LIMIT 5;',
+	context_example => 'ragdemos',
 	explanation_example => 'This SQL query uses the AlloyDB AI embedding function to get an embedding for the search phrase "sustainable energy", then it compares the generated embedding to vector embeddings stored in the overview_embedding column. It returns the 5 most relevant results based on vector distances of the search embedding and the stored embeddings. We use the overview_embedding field because the question is about the company objectives.'
 )
 
-SELECT alloydb_ai_nl.g_admit_example(
+SELECT alloydb_ai_nl.add_example(
 	nl_example => 'Which clients might be interested in a new Bitcoin ETF?',
 	sql_example => 'SELECT id, first_name, last_name, email, age, risk_profile, bio,
 		bio_embedding <=> google_ml.embedding(''textembedding-gecko@003'', ''young aggressive investor'')::vector AS distance
 		FROM user_profiles ORDER BY distance LIMIT 50;',
+	context_example => 'ragdemos',
 	explanation_example => 'This SQL query uses the AlloyDB AI embedding function to get an embedding for the search phrase "young aggressive investor", then it compares the generated embedding to vector embeddings stored in the bio_embedding column. It returns the 50 most relevant results based on vector distances of the search embedding and the stored embeddings. We use the user_profiles table because the question is about clients.'
 )
 
-SELECT alloydb_ai_nl.g_admit_example(
+SELECT alloydb_ai_nl.add_example(
 	nl_example => 'Are any of my clients managing significant debt?',
 	sql_example => 'SELECT id, first_name, last_name, email, age, risk_profile, bio,
 		bio_embedding <=> google_ml.embedding(''textembedding-gecko@003'', ''significant debt'')::vector AS distance
 		FROM user_profiles ORDER BY distance LIMIT 50;',
+	context_example => 'ragdemos',
 	explanation_example => 'This SQL query uses the AlloyDB AI embedding function to get an embedding for the search phrase "significant debt", then it compares the generated embedding to vector embeddings stored in the bio_embedding column. It returns the 50 most relevant results based on vector distances of the search embedding and the stored embeddings. We use the user_profiles table because the question is about clients.'
 )
 

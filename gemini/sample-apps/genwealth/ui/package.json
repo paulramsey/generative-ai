@@ -23,6 +23,7 @@
     "@angular/router": "^17.3.0",
     "@openapitools/openapi-generator-cli": "^2.13.5",
     "highlight.js": "^11.10.0",
+    "marked": "^14.1.2",
     "ngx-highlightjs": "^12.0.0",
     "rxjs": "~7.8.0",
     "sql-formatter": "^15.4.2",

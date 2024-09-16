@@ -13,13 +13,17 @@ import { ProspectsComponent } from './prospects/prospects.component';
 import { ChatComponent } from './chat/chat.component';
 import { SnackBarErrorComponent } from './common/SnackBarErrorComponent';
 
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatDividerModule} from '@angular/material/divider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 
-import {MatMenuModule} from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { RoleService } from './services/genwealth-api';
+
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MarkdownViewerComponent } from './common/markdown-viewer/markdown-viewer.component';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -37,7 +41,8 @@ import { RoleService } from './services/genwealth-api';
     MatButtonToggleModule, 
     MatCheckboxModule,
     MatDividerModule,
-    MatMenuModule
+    MatMenuModule,
+    MarkdownViewerComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -46,7 +51,9 @@ import { RoleService } from './services/genwealth-api';
 export class AppComponent implements OnInit {
   constructor(
     private breakpointObserver: BreakpointObserver, 
-    private RoleService: RoleService) {}
+    private RoleService: RoleService,
+    public dialog: MatDialog,
+    private http: HttpClient) {}
 
   isSmallScreen: boolean = false;
 
@@ -54,6 +61,8 @@ export class AppComponent implements OnInit {
   currentRoleId: number | null | undefined;
   subscriptionTier: number | null | undefined;
   currentRoleMap: Map<string, Array<number | null>> | undefined;
+
+  markdownContent = '';
 
   ngOnInit() { 
     this.breakpointObserver
@@ -83,6 +92,16 @@ export class AppComponent implements OnInit {
     this.currentRole = pText
     this.currentRoleMap = this.RoleService.lookupRoleDetails(this.currentRole)
     this.RoleService.updateRole(this.currentRoleMap);
+  }
+
+  openArchitectureDialog(markdownPath: string) {
+    this.dialog.open(MarkdownViewerComponent, { 
+      height: '90%',
+      width: '90%',
+      data: { 
+        markdownSource: this.http.get(markdownPath, { responseType: 'text' }) 
+      }
+    });
   }
 
 }
