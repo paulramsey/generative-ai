@@ -47,7 +47,7 @@ export class Database {
   }
 
   async query(query: string) {
-    console.log("Running query in non-PSV pool.")
+    console.log("Running query in non-PSV pool.")  
     const client = await this.pool.connect()
     const res = await client.query(query)
     client.release()

@@ -22,7 +22,8 @@ import { RoleService } from '../services/genwealth-api';
 export enum SearchType {
   KEYWORD = 'keyword',
   SEMANTIC = 'semantic',
-  NATURAL = 'natural'
+  NATURAL = 'natural',
+  FREEFORM = 'freeform'
 }
 
 @Component({
@@ -90,7 +91,7 @@ export class InvestmentsComponent implements OnInit {
   KEYWORD_PLACEHOLDER = "Enter comma delimited key terms to search";
   SEMANTIC_PLACEHOLDER = "Describe the type of investment you are looking for";
   NATURAL_PLACEHOLDER = "Enter a natural language question describing the type of investment you are looking for";
-
+  FREEFORM_PLACEHOLDER = "Enter a valid SQL query"
 
   BUTTON_TEXT = "Find"
   LOADING_BUTTON_TEXT = "Generating SQL"
@@ -137,6 +138,19 @@ export class InvestmentsComponent implements OnInit {
             })
           );
         break;
+      case SearchType.FREEFORM:
+        this.investments =
+          this.genWealthClient.freeformSearchInvestments(this.investmentSearch, this.currentRole!, this.currentRoleId!, this.subscriptionTier!).pipe(
+            catchError((err: any) => {
+              this.error.showError(JSON.stringify(err), err);
+              return [];
+            }),
+            finalize(() => {
+              this.loading = false;
+              this.ApplicationRef.tick();
+            })
+          );
+        break;
       default:
         break;
     }
@@ -150,6 +164,8 @@ export class InvestmentsComponent implements OnInit {
         return "hedge against high inflation";
       case SearchType.NATURAL:
         return "What are some investments that would perform well in a high inflation environment?";
+      case SearchType.FREEFORM:
+        return "SELECT * FROM investments LIMIT 5;"
       default:
         return '';
     }

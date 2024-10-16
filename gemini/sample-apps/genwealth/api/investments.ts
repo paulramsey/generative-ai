@@ -5,13 +5,15 @@ export class Investments {
         private dbPsv: DatabasePsv
     ) { }
 
-    private async executeQuery(query: string, currentRole: string, currentRoleId: number, subscriptionTier: number, generatedQuery: string = "", getSqlQuery: string = ""): Promise<{ data: any[], query: string, generatedQuery?: string, getSqlQuery?: string, errorDetail?: string }> {
+    private async executeQuery(query: string, currentRole: string, currentRoleId: number, subscriptionTier: number, searchType: string, generatedQuery: string = "", getSqlQuery: string = ""): Promise<{ data: any[], query: string, generatedQuery?: string, getSqlQuery?: string, errorDetail?: string , searchType?: string}> {
         let flattenResults = false;
         let resultRows: any[] = [];
 
-        if (currentRole !== 'Admin') {
+        if (currentRole !== 'Admin' || searchType == 'FREEFORM') {
             flattenResults = true;
-            let psv_query = query.replace("FROM investments", "FROM psv_investments").replace(/'/g, "''");
+            let psv_query = query.replace("FROM investments", "FROM psv_investments");
+            psv_query = psv_query.replace("FROM user_profiles", "FROM psv_user_profiles");
+            psv_query = psv_query.replace(/'/g, "''");
 
             query = `SELECT * FROM
             alloydb_ai_nl.google_exec_param_query(
@@ -50,6 +52,7 @@ export class Investments {
 
     async search(searchTerms: string[], currentRole: string, currentRoleId: number, subscriptionTier: number) {
         let query;
+        let searchType = 'KEYWORD';
         try {
             console.log('using searchTerms', searchTerms, ' with role: ', currentRole);
 
@@ -67,16 +70,17 @@ export class Investments {
             query += ` 
                 LIMIT 5;`;
 
-            return this.executeQuery(query, currentRole, currentRoleId, subscriptionTier);
+            return this.executeQuery(query, currentRole, currentRoleId, subscriptionTier, searchType);
         } catch (error) {
             const errorDetail = `search errored with query: ${query}.\nError: ${(error as Error)?.message}`;
             console.error(errorDetail);
-            return { data: [], query: query, errorDetail: errorDetail };
+            return { data: [], query: query, errorDetail: errorDetail, searchType: searchType };
         }
     }
 
     async semanticSearch(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number) {
         let query;
+        let searchType = 'SEMANTIC';
         try {
             query = `SELECT ticker, etf, rating, analysis, subscription_tier,
             analysis_embedding <=> google_ml.embedding('textembedding-gecko@003', '${safeString(prompt)}')::vector AS distance
@@ -84,16 +88,17 @@ export class Investments {
             ORDER BY distance
             LIMIT 5;`;
 
-        return this.executeQuery(query, currentRole, currentRoleId, subscriptionTier);
+        return this.executeQuery(query, currentRole, currentRoleId, subscriptionTier, searchType);
         } catch (error) {
             const errorDetail = `semanticSearch errored with query: ${query}.\nError: ${(error as Error)?.message}`;
             console.error(errorDetail);
-            return { data: [], query: query, errorDetail: errorDetail };
+            return { data: [], query: query, errorDetail: errorDetail, searchType: searchType };
         }
     }
 
     async naturalSearch(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number) {
         let query, generatedQuery, getSqlQuery;
+        let searchType = 'NATURAL';
         try {
             const nlConfig = currentRole === 'Admin' ? 'ragdemos' : 'psv';
 
@@ -112,14 +117,28 @@ export class Investments {
             generatedQuery = generateSql[0].generated_sql;
 
             // Now you can use executeQuery with the generated SQL
-            const result = await this.executeQuery(generatedQuery, currentRole, currentRoleId, subscriptionTier, generatedQuery, getSqlQuery);
+            const result = await this.executeQuery(generatedQuery, currentRole, currentRoleId, subscriptionTier, searchType, generatedQuery, getSqlQuery);
             //result.generatedQuery = generatedQuery; // Add generatedQuery to the result
             return result; 
 
         } catch (error) {
             const errorDetail = `naturalSearch errored with query: ${query} and \ngeneratedQuery: ${generatedQuery}.\nError: ${(error as Error)?.message}`;
             console.error(errorDetail);
-            return { query: query, generatedQuery: generatedQuery, errorDetail: errorDetail, getSqlQuery: getSqlQuery };
+            return { query: query, generatedQuery: generatedQuery, errorDetail: errorDetail, getSqlQuery: getSqlQuery, searchType: searchType };
+        }
+    }
+
+    async freeformSearch(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number) {
+        let query;
+        let searchType = 'FREEFORM';
+        try {
+            query = prompt;
+
+            return this.executeQuery(query, currentRole, currentRoleId, subscriptionTier, searchType);
+        } catch (error) {
+            const errorDetail = `freeformSearch errored with query: ${query}.\nError: ${(error as Error)?.message}`;
+            console.error(errorDetail);
+            return { data: [], query: query, errorDetail: errorDetail, searchType: searchType };
         }
     }
 }

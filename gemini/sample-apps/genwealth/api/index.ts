@@ -96,6 +96,26 @@ app.get('/api/investments/natural-search', async (req: express.Request, res: exp
     }    
 });
 
+/** Find investments with arbitrary SQL (protected by PSV) 
+*/
+ app.get('/api/investments/freeform-search', async (req: express.Request, res: express.Response) => {
+  try
+  {
+    const prompt: string = req.query.prompt as string;
+    const currentRole: string = req.query.currentRole as string;
+    const currentRoleId: number = req.query.currentRoleId as unknown as number;
+    const subscriptionTier: number = req.query.subscriptionTier as unknown as number;
+
+    const response = await investments.freeformSearch(prompt, currentRole, currentRoleId, subscriptionTier);
+    res.json(response);
+  }
+    catch (err)
+    {
+      console.error('error occurred:', err);
+      res.status(500).send(err);
+    }    
+});
+
 /** Find prospects with natural language prompt and optional filters
  *  i.e. /prospects/search?prompt=young%20aggressive%20investor&risk_profile=low&min_age=25&max_age=40 */ 
  app.get('/api/prospects/search', async (req: express.Request, res: express.Response) => {

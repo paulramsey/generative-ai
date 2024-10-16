@@ -4,10 +4,13 @@
         <mat-radio-button value="{{searchTypes.KEYWORD}}">Keyword Search</mat-radio-button>
         <mat-radio-button value="{{searchTypes.SEMANTIC}}">Vector Search</mat-radio-button>
         <mat-radio-button value="{{searchTypes.NATURAL}}">Natural Language Search</mat-radio-button>
+        @if (currentRole == 'Admin') {
+            <mat-radio-button value="{{searchTypes.FREEFORM}}">Free-form SQL (Protected by PSV)</mat-radio-button>
+        }
     </mat-radio-group>
     <mat-form-field>
         <input matInput [(ngModel)]="investmentSearch" (keydown.enter)="findInvestments()"
-            [placeholder]="searchType == searchTypes.KEYWORD ? KEYWORD_PLACEHOLDER : ( searchType == searchTypes.SEMANTIC ? SEMANTIC_PLACEHOLDER : NATURAL_PLACEHOLDER )">
+            [placeholder]="searchType == searchTypes.KEYWORD ? KEYWORD_PLACEHOLDER : ( searchType == searchTypes.SEMANTIC ? SEMANTIC_PLACEHOLDER : (searchType == searchTypes.NATURAL ? NATURAL_PLACEHOLDER : FREEFORM_PLACEHOLDER) )">
         <mat-icon matTooltip="Sample suggestion" matSuffix fontSet="material-symbols-outlined"
                 (click)="investmentSearch = getSuggestion()">
             prompt_suggestion

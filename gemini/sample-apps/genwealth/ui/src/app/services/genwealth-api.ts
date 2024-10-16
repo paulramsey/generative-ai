@@ -9,6 +9,7 @@ export interface QueryResponse<T> {
     generatedQuery?: string;
     errorDetail?: string;
     getSqlQuery?: string;
+    searchType: string | undefined;
 }
 
 export interface Investment {
@@ -57,6 +58,7 @@ export interface GenWealthService {
     searchInvestments(terms: string[], currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>>;
     semanticSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>>;
     naturalSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>>;
+    freeformSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>>;
     semanticSearchProspects(
         prompt: string,
         currentRole: string, 
@@ -96,6 +98,12 @@ export class GenWealthServiceClient implements GenWealthService {
 
     naturalSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>> {
         return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/natural-search`, {
+            params: { prompt: prompt, currentRole: currentRole, currentRoleId: currentRoleId, subscriptionTier: subscriptionTier }
+        });
+    }
+
+    freeformSearchInvestments(prompt: string, currentRole: string, currentRoleId: number, subscriptionTier: number): Observable<QueryResponse<Investment>> {
+        return this.http.get<QueryResponse<Investment>>(`${this.baseUrl}/investments/freeform-search`, {
             params: { prompt: prompt, currentRole: currentRole, currentRoleId: currentRoleId, subscriptionTier: subscriptionTier }
         });
     }

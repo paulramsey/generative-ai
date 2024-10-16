@@ -44,6 +44,8 @@ export class InvestmentResultsComponent implements OnInit {
   subscriptionTier: number | null | undefined;
   enablePsv: boolean | undefined;
 
+  searchType?: string = undefined;
+
   ngOnInit(): void {
     console.log("Loading investment component.")
     
@@ -71,9 +73,10 @@ export class InvestmentResultsComponent implements OnInit {
       this.generatedQuery = response.generatedQuery;
       this.errorDetail = response.errorDetail;
       this.getSqlQuery = response.getSqlQuery;
+      this.searchType = response.searchType;
       this.cdr.detectChanges();
 
-      if (this.currentRole !== 'Admin') {
+      if (this.currentRole !== 'Admin' || this.searchType == 'FREEFORM') {
         this.enablePsv = true;
       } else {
         this.enablePsv = false;
