@@ -1,18 +1,22 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
-import { ChatRequest, ChatResponse, GenWealthServiceClient } from '../services/genwealth-api';
-import { TextToHtmlPipe } from '../common/text-to-html.pipe';
+import {
+  ChatRequest,
+  ChatResponse,
+  GenWealthServiceClient,
+} from "../services/genwealth-api";
+import { TextToHtmlPipe } from "../common/text-to-html.pipe";
 
-import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatCardModule } from '@angular/material/card';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from "@angular/material/button";
+import { FormsModule } from "@angular/forms";
+import { MatInputModule } from "@angular/material/input";
+import { MatCardModule } from "@angular/material/card";
+import { MatSidenavModule } from "@angular/material/sidenav";
+import { MatSlideToggle } from "@angular/material/slide-toggle";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 import { ChatConfigurationComponent } from './configuration/chat-configuration.component';
 import { SqlStatementComponent } from '../common/sql-statement/sql-statement.component';
@@ -22,13 +26,13 @@ import { SnackBarErrorComponent } from '../common/SnackBarErrorComponent';
 import { RoleService } from '../services/genwealth-api';
 
 @Component({
-  selector: 'app-chat',
+  selector: "app-chat",
   standalone: true,
   imports: [
     CommonModule,
     MatButtonModule,
     FormsModule,
-    MatInputModule,    
+    MatInputModule,
     MatSlideToggle,
     MatSidenavModule,
     MatCardModule,
@@ -39,10 +43,10 @@ import { RoleService } from '../services/genwealth-api';
     MatTooltipModule,
     ChatConfigurationComponent,
   ],
-  templateUrl: './chat.component.html',
-  styleUrl: './chat.component.scss'
+  templateUrl: "./chat.component.html",
+  styleUrl: "./chat.component.scss",
 })
-export class ChatComponent implements OnInit { 
+export class ChatComponent implements OnInit {
   chatPlaceholder = "Ask me a question";
   loading: boolean = false;
   chatRequest: ChatRequest = new ChatRequest("");
@@ -62,8 +66,8 @@ export class ChatComponent implements OnInit {
     private RoleService: RoleService) {}  
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const userId = params.get('userId') ?? undefined;
+    this.route.paramMap.subscribe((params) => {
+      const userId = params.get("userId") ?? undefined;
       this.chatRequest.userId = userId ? Number(userId) : undefined;
     });
 
@@ -86,20 +90,19 @@ export class ChatComponent implements OnInit {
     });
   }
 
-  askQuestion() { 
+  askQuestion() {
     this.cdRef.detectChanges();
     this.loading = true;
-    this.genWealthClient.chat(this.chatRequest)
-      .subscribe({ 
-        next: response => {
-          this.chatResponse = response;
-          this.loading = false;
-        },
-        error: err => {
-          this.error.showError('Error connecting to chat server', err);
-          this.loading = false;
-        },
-      });
+    this.genWealthClient.chat(this.chatRequest).subscribe({
+      next: (response) => {
+        this.chatResponse = response;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error.showError("Error connecting to chat server", err);
+        this.loading = false;
+      },
+    });
   }
 
   getAskSuggestion() {
