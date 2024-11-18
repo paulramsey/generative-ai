@@ -15,7 +15,7 @@ export class Prospects {
             let psv_query = query.replace("FROM user_profiles", "FROM psv_user_profiles").replace(/'/g, "''");
 
             query = `SELECT * FROM
-            alloydb_ai_nl.google_exec_param_query(
+            parameterized_views.execute_parameterized_query(
                 query => '${psv_query}',
                 param_names => ARRAY ['advisor_id', 'subscription_tier'],
                 param_values => ARRAY ['${String(currentRoleId)}', '${String(subscriptionTier)}']

@@ -165,7 +165,7 @@ The app then uses the parameterized secure views by executing the `google_exec_p
 SELECT
   *
 FROM
-  alloydb_ai_nl.google_exec_param_query (
+  parameterized_views.execute_parameterized_query (
     query => 'SELECT ticker, etf, rating, analysis, subscription_tier
                 FROM psv_investments
                 WHERE analysis LIKE ''%high inflation%''

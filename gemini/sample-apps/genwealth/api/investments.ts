@@ -7,7 +7,7 @@ export class Investments {
 
     private async executeQuery(query: string, currentRole: string, currentRoleId: number, subscriptionTier: number, searchType: string, generatedQuery: string = "", getSqlQuery: string = ""): Promise<{ data: any[], query: string, generatedQuery?: string, getSqlQuery?: string, errorDetail?: string , searchType?: string}> {
         let flattenResults = false;
-        let resultRows: any[] = [];
+        let resultRows: any[] = [];  
 
         if (currentRole !== 'Admin' || searchType == 'FREEFORM') {
             flattenResults = true;
@@ -16,7 +16,7 @@ export class Investments {
             psv_query = psv_query.replace(/'/g, "''");
 
             query = `SELECT * FROM
-            alloydb_ai_nl.google_exec_param_query(
+            parameterized_views.execute_parameterized_query(
                 query => '${psv_query}',
                 param_names => ARRAY ['advisor_id', 'subscription_tier'],
                 param_values => ARRAY ['${String(currentRoleId)}', '${String(subscriptionTier)}']
