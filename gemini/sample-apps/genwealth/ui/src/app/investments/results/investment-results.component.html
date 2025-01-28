@@ -29,7 +29,7 @@
 <div *ngIf="!generatedQuery || generatedQuery && enablePsv">
   <div *ngIf="query">
     <app-sql-statement [query]="query">
-        -- See Executed SQL Query --<span *ngIf="enablePsv"> Secured with PSV</span>
+        -- See Executed SQL Query <span *ngIf="enablePsv"> &nbsp;(Secured with PSV)&nbsp;</span> --
     </app-sql-statement>
   </div>
 </div>
