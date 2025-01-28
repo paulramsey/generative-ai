@@ -1,23 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 
 import { format } from 'sql-formatter';
+import * as Prism from 'prismjs';
 
-import { HighlightModule } from 'ngx-highlightjs';
+import 'prismjs/components/prism-sql.min.js'; 
 
 @Component({
   selector: 'app-sql-statement',
   standalone: true,
   imports: [
     CommonModule,
-    MatExpansionModule,
-    HighlightModule
+    MatExpansionModule
   ],
   templateUrl: './sql-statement.component.html',
   styleUrl: './sql-statement.component.scss'
 })
-export class SqlStatementComponent implements OnChanges { // Implement OnChanges
+export class SqlStatementComponent implements OnChanges, AfterViewInit { // Implement OnChanges
 
   @Input() query?: string | undefined;
   formattedQuery?: string;
@@ -27,9 +27,14 @@ export class SqlStatementComponent implements OnChanges { // Implement OnChanges
       const newQuery = changes['query'].currentValue;
       if (newQuery) {
         this.query = format(newQuery, { language: 'postgresql' });
+        Prism.highlightAll();
       } else {
         this.query = undefined;
       }
     }
+  }
+
+  ngAfterViewInit() { // Add ngAfterViewInit()
+    Prism.highlightAll();
   }
 }

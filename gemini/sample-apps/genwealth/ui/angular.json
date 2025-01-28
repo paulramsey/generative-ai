@@ -90,6 +90,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/prismjs/themes/prism-okaidia.css",
               "src/styles.scss"
             ],
             "scripts": []
