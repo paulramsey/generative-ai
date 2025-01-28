@@ -16,26 +16,22 @@
 
 <div *ngIf="getSqlQuery">
     <app-sql-statement [query]="getSqlQuery">
-        See Original SQL Query
+        -- See Original SQL Query --
     </app-sql-statement>
 </div>
 
 <div *ngIf="generatedQuery">
     <app-sql-statement [query]="generatedQuery">
-        See Generated SQL Query (AlloyDB NL2SQL)
+        -- See Generated SQL Query -- 
     </app-sql-statement>
 </div>
 
-<div *ngIf="query">
-    
+<div *ngIf="!generatedQuery || generatedQuery && enablePsv">
+  <div *ngIf="query">
     <app-sql-statement [query]="query">
-        @if(enablePsv) {
-            See Executed SQL Query (Secured with PSV)
-        } @else {
-            See Executed SQL Query
-        }
+        -- See Executed SQL Query --<span *ngIf="enablePsv"> Secured with PSV</span>
     </app-sql-statement>
-    
+  </div>
 </div>
 
 <div *ngIf="data && data.length > 0">
